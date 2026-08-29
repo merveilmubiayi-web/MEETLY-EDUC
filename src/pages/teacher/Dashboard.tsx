@@ -1,40 +1,188 @@
+import React, { useState } from 'react'
+
 const teacherCourses = [
-  { name: 'Mathématiques', className: 'Terminale A', students: 32, next: '09:00' },
-  { name: 'Physique-Chimie', className: 'Terminale C', students: 28, next: '11:15' },
-  { name: 'Informatique', className: 'Seconde B', students: 26, next: '14:00' },
+  { name: 'Français', className: '6ème A – Primaire', students: 32, next: '08:00' },
+  { name: 'Mathématiques', className: '6ème A – Primaire', students: 32, next: '09:15' },
+  { name: 'Sciences', className: '6ème A – Primaire', students: 32, next: '10:30' },
+  { name: 'Histoire-Géographie', className: '6ème A – Primaire', students: 32, next: '11:45' },
+  { name: 'Éducation morale', className: '6ème A – Primaire', students: 32, next: '13:00' },
+  { name: 'Anglais', className: '6ème A – Primaire', students: 32, next: '14:15' },
+  { name: 'Art plastique', className: '6ème A – Primaire', students: 32, next: '15:00' },
 ]
 
 const recentGrades = [
   { student: 'Amani K.', subject: 'Mathématiques', grade: '18/20' },
-  { student: 'Boris M.', subject: 'Physique', grade: '16/20' },
-  { student: 'Céline D.', subject: 'Français', grade: '17/20' },
+  { student: 'Boris M.', subject: 'Français', grade: '16/20' },
+  { student: 'Céline D.', subject: 'Sciences', grade: '17/20' },
 ]
 
-const attendanceList = [
-  { student: 'Amani K.', status: 'Présent' },
-  { student: 'Boris M.', status: 'Retard' },
-  { student: 'Céline D.', status: 'Absent' },
-  { student: 'Dylan T.', status: 'Présent' },
+const initialAttendance = [
+  { id: '1', student: 'Amani Kabasele', status: 'present' },
+  { id: '2', student: 'Boris Mbuyi', status: 'absent' },
+  { id: '3', student: 'Céline Nsimba', status: 'present' },
+  { id: '4', student: 'Dylan Tshibanda', status: 'present' },
+  { id: '5', student: 'Esther Lubamba', status: 'absent' },
+  { id: '6', student: 'Franck Kalonji', status: 'present' },
 ]
+
+type ViewMode = 'dashboard' | 'notes' | 'attendance' | 'bulletin'
 
 export function TeacherDashboard() {
+  const [view, setView] = useState<ViewMode>('dashboard')
+  const [students, setStudents] = useState(initialAttendance)
+
+  const updateStatus = (id: string, status: 'present' | 'absent') => {
+    setStudents((current) =>
+      current.map((student) =>
+        student.id === id ? { ...student, status } : student,
+      ),
+    )
+  }
+
+  if (view === 'notes') {
+    return <GradeEntryPage />
+  }
+
+  if (view === 'attendance') {
+    return (
+      <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+        <div className="mb-5 flex items-center justify-between gap-3">
+          <div>
+            <h2 className="text-2xl font-bold text-slate-900">Journal de classe</h2>
+            <p className="text-sm text-slate-500">Classe titulaire : 6ème A • Primaire</p>
+          </div>
+          <button
+            type="button"
+            onClick={() => setView('dashboard')}
+            className="rounded-lg bg-slate-100 px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-200"
+          >
+            Retour
+          </button>
+        </div>
+
+        <div className="mb-5 flex flex-wrap gap-3">
+          <button
+            type="button"
+            onClick={() => setStudents((current) => current.map((student) => ({ ...student, status: 'present' })))}
+            className="rounded-lg bg-emerald-100 px-3 py-2 text-sm font-semibold text-emerald-700"
+          >
+            Tous présents
+          </button>
+          <button
+            type="button"
+            onClick={() => setStudents((current) => current.map((student) => ({ ...student, status: 'absent' })))}
+            className="rounded-lg bg-rose-100 px-3 py-2 text-sm font-semibold text-rose-700"
+          >
+            Tous absents
+          </button>
+        </div>
+
+        <div className="space-y-3">
+          {students.map((item) => (
+            <div key={item.id} className="grid items-center gap-3 rounded-xl border border-slate-200 p-3 md:grid-cols-[1.5fr_1fr_1fr]">
+              <p className="font-semibold text-slate-900">{item.student}</p>
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  onClick={() => updateStatus(item.id, 'present')}
+                  className={`flex-1 rounded-lg border px-3 py-2 text-xs font-semibold transition ${
+                    item.status === 'present'
+                      ? 'border-emerald-600 bg-emerald-600 text-white'
+                      : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-100'
+                  }`}
+                >
+                  Présent
+                </button>
+                <button
+                  type="button"
+                  onClick={() => updateStatus(item.id, 'absent')}
+                  className={`flex-1 rounded-lg border px-3 py-2 text-xs font-semibold transition ${
+                    item.status === 'absent'
+                      ? 'border-rose-600 bg-rose-600 text-white'
+                      : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-100'
+                  }`}
+                >
+                  Absent
+                </button>
+              </div>
+              <span
+                className={`w-fit rounded-full px-2.5 py-1 text-xs font-semibold ${
+                  item.status === 'present' ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700'
+                }`}
+              >
+                {item.status === 'present' ? 'Présent' : 'Absent'}
+              </span>
+            </div>
+          ))}
+        </div>
+      </div>
+    )
+  }
+
+  if (view === 'bulletin') {
+    return (
+      <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+        <div className="mb-5 flex items-center justify-between gap-3">
+          <div>
+            <h2 className="text-2xl font-bold text-slate-900">Bulletin et suivi</h2>
+            <p className="text-sm text-slate-500">Suivi du rendement scolaire de la classe 6ème A</p>
+          </div>
+          <button
+            type="button"
+            onClick={() => setView('dashboard')}
+            className="rounded-lg bg-slate-100 px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-200"
+          >
+            Retour
+          </button>
+        </div>
+
+        <div className="grid gap-4 md:grid-cols-3">
+          <div className="rounded-xl bg-emerald-50 p-4">
+            <p className="text-sm text-emerald-700">Moyenne générale</p>
+            <p className="mt-2 text-3xl font-bold text-emerald-900">82%</p>
+          </div>
+          <div className="rounded-xl bg-amber-50 p-4">
+            <p className="text-sm text-amber-700">Présence</p>
+            <p className="mt-2 text-3xl font-bold text-amber-900">91%</p>
+          </div>
+          <div className="rounded-xl bg-indigo-50 p-4">
+            <p className="text-sm text-indigo-700">Élèves performants</p>
+            <p className="mt-2 text-3xl font-bold text-indigo-900">19</p>
+          </div>
+        </div>
+
+        <div className="mt-6 space-y-3">
+          {recentGrades.map((item) => (
+            <div key={item.student} className="flex items-center justify-between rounded-xl border border-slate-200 p-3">
+              <div>
+                <p className="font-semibold text-slate-900">{item.student}</p>
+                <p className="text-xs text-slate-500">{item.subject}</p>
+              </div>
+              <span className="rounded-full bg-indigo-100 px-3 py-1 text-sm font-semibold text-indigo-700">{item.grade}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="space-y-6 p-2">
       <div className="grid gap-4 md:grid-cols-3">
         <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-          <p className="text-sm text-slate-500">Classes assignées</p>
-          <p className="mt-2 text-3xl font-bold text-slate-900">03</p>
-          <p className="mt-1 text-xs text-slate-500">2 sections secondaires • 1 classe fondamentale</p>
+          <p className="text-sm text-slate-500">Classe titulaire</p>
+          <p className="mt-2 text-3xl font-bold text-slate-900">6ème A</p>
+          <p className="mt-1 text-xs text-slate-500">Primaire • 1 classe seulement</p>
         </div>
         <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
           <p className="text-sm text-slate-500">Élèves suivis</p>
-          <p className="mt-2 text-3xl font-bold text-slate-900">86</p>
-          <p className="mt-1 text-xs text-slate-500">Taux d’assiduité 94%</p>
+          <p className="mt-2 text-3xl font-bold text-slate-900">32</p>
+          <p className="mt-1 text-xs text-slate-500">Taux d’assiduité 91%</p>
         </div>
         <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-          <p className="text-sm text-slate-500">Prochain cours</p>
-          <p className="mt-2 text-2xl font-bold text-slate-900">Mathématiques</p>
-          <p className="mt-1 text-xs text-indigo-600">09:00 • Terminale A</p>
+          <p className="text-sm text-slate-500">Cours à dispenser</p>
+          <p className="mt-2 text-2xl font-bold text-slate-900">12</p>
+          <p className="mt-1 text-xs text-indigo-600">Aujourd’hui • 6ème A</p>
         </div>
       </div>
 
@@ -50,7 +198,7 @@ export function TeacherDashboard() {
                 </div>
                 <div className="text-right">
                   <p className="text-sm font-semibold text-slate-800">{course.students} élèves</p>
-                  <p className="text-xs text-indigo-600">Prochain cours {course.next}</p>
+                  <p className="text-xs text-indigo-600">Heure {course.next}</p>
                 </div>
               </div>
             ))}
@@ -60,14 +208,26 @@ export function TeacherDashboard() {
         <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
           <h3 className="text-xl font-bold text-slate-900">Actions rapides</h3>
           <div className="mt-5 space-y-3">
-            <button className="w-full rounded-xl border border-slate-200 bg-slate-50 p-3 text-left text-sm font-medium text-slate-700 hover:bg-slate-100">
+            <button
+              type="button"
+              onClick={() => setView('notes')}
+              className="w-full rounded-xl border border-slate-200 bg-slate-50 p-3 text-left text-sm font-medium text-slate-700 hover:bg-slate-100"
+            >
               Saisir des notes
             </button>
-            <button className="w-full rounded-xl border border-slate-200 bg-slate-50 p-3 text-left text-sm font-medium text-slate-700 hover:bg-slate-100">
-              Gérer les présences
+            <button
+              type="button"
+              onClick={() => setView('attendance')}
+              className="w-full rounded-xl border border-slate-200 bg-slate-50 p-3 text-left text-sm font-medium text-slate-700 hover:bg-slate-100"
+            >
+              Journal de classe
             </button>
-            <button className="w-full rounded-xl border border-slate-200 bg-slate-50 p-3 text-left text-sm font-medium text-slate-700 hover:bg-slate-100">
-              Publier le bulletin
+            <button
+              type="button"
+              onClick={() => setView('bulletin')}
+              className="w-full rounded-xl border border-slate-200 bg-slate-50 p-3 text-left text-sm font-medium text-slate-700 hover:bg-slate-100"
+            >
+              Bulletin et suivi
             </button>
           </div>
         </div>
@@ -82,7 +242,7 @@ export function GradeEntryPage() {
       <div className="mb-5 flex items-center justify-between">
         <div>
           <h2 className="text-2xl font-bold text-slate-900">Saisie des notes</h2>
-          <p className="text-sm text-slate-500">Entrée et validation des évaluations par classe et matière.</p>
+          <p className="text-sm text-slate-500">Entrée des évaluations pour la classe titulaire.</p>
         </div>
         <button className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-700">
           Enregistrer
@@ -91,10 +251,10 @@ export function GradeEntryPage() {
 
       <div className="mb-5 grid gap-4 md:grid-cols-3">
         <select className="rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-700">
-          <option>Mathématiques - Terminale A</option>
-          <option>Physique - Terminale C</option>
+          <option>Français - 6ème A</option>
+          <option>Mathématiques - 6ème A</option>
         </select>
-        <input className="rounded-lg border border-slate-300 px-3 py-2 text-sm" placeholder="Nom de l’évaluation" defaultValue="Contrôle n°3" />
+        <input className="rounded-lg border border-slate-300 px-3 py-2 text-sm" placeholder="Nom de l’évaluation" defaultValue="Devoir n°2" />
         <input className="rounded-lg border border-slate-300 px-3 py-2 text-sm" placeholder="Coefficient" defaultValue="2" />
       </div>
 
@@ -115,12 +275,22 @@ export function GradeEntryPage() {
 }
 
 export function AttendancePage() {
+  const [students, setStudents] = React.useState(initialAttendance)
+
+  const updateStatus = (id: string, status: 'present' | 'absent') => {
+    setStudents((current) =>
+      current.map((student) =>
+        student.id === id ? { ...student, status } : student,
+      ),
+    )
+  }
+
   return (
     <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-      <div className="mb-5 flex items-center justify-between">
+      <div className="mb-5 flex items-center justify-between gap-3">
         <div>
-          <h2 className="text-2xl font-bold text-slate-900">Présences</h2>
-          <p className="text-sm text-slate-500">Suivi des absences et présence des élèves.</p>
+          <h2 className="text-2xl font-bold text-slate-900">Journal de classe</h2>
+          <p className="text-sm text-slate-500">Classe titulaire : 6ème A • Primaire</p>
         </div>
         <button className="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-700">
           Valider l’appel
@@ -128,21 +298,57 @@ export function AttendancePage() {
       </div>
 
       <div className="mb-5 flex flex-wrap gap-3">
-        <button className="rounded-lg bg-emerald-100 px-3 py-2 text-sm font-semibold text-emerald-700">Tous présents</button>
-        <button className="rounded-lg bg-rose-100 px-3 py-2 text-sm font-semibold text-rose-700">Tous absents</button>
-        <button className="rounded-lg bg-amber-100 px-3 py-2 text-sm font-semibold text-amber-700">Retards</button>
+        <button
+          type="button"
+          onClick={() => setStudents((current) => current.map((student) => ({ ...student, status: 'present' })))}
+          className="rounded-lg bg-emerald-100 px-3 py-2 text-sm font-semibold text-emerald-700"
+        >
+          Tous présents
+        </button>
+        <button
+          type="button"
+          onClick={() => setStudents((current) => current.map((student) => ({ ...student, status: 'absent' })))}
+          className="rounded-lg bg-rose-100 px-3 py-2 text-sm font-semibold text-rose-700"
+        >
+          Tous absents
+        </button>
       </div>
 
       <div className="space-y-3">
-        {attendanceList.map((item) => (
-          <div key={item.student} className="grid items-center gap-3 rounded-xl border border-slate-200 p-3 md:grid-cols-[1.5fr_1fr_1fr]">
+        {students.map((item) => (
+          <div key={item.id} className="grid items-center gap-3 rounded-xl border border-slate-200 p-3 md:grid-cols-[1.5fr_1fr_1fr]">
             <p className="font-semibold text-slate-900">{item.student}</p>
-            <span className={`w-fit rounded-full px-2.5 py-1 text-xs font-semibold ${item.status === 'Présent' ? 'bg-emerald-100 text-emerald-700' : item.status === 'Retard' ? 'bg-amber-100 text-amber-700' : 'bg-rose-100 text-rose-700'}`}>
-              {item.status}
+            <div className="flex gap-2">
+              <button
+                type="button"
+                onClick={() => updateStatus(item.id, 'present')}
+                className={`flex-1 rounded-lg border px-3 py-2 text-xs font-semibold transition ${
+                  item.status === 'present'
+                    ? 'border-emerald-600 bg-emerald-600 text-white'
+                    : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-100'
+                }`}
+              >
+                Présent
+              </button>
+              <button
+                type="button"
+                onClick={() => updateStatus(item.id, 'absent')}
+                className={`flex-1 rounded-lg border px-3 py-2 text-xs font-semibold transition ${
+                  item.status === 'absent'
+                    ? 'border-rose-600 bg-rose-600 text-white'
+                    : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-100'
+                }`}
+              >
+                Absent
+              </button>
+            </div>
+            <span
+              className={`w-fit rounded-full px-2.5 py-1 text-xs font-semibold ${
+                item.status === 'present' ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700'
+              }`}
+            >
+              {item.status === 'present' ? 'Présent' : 'Absent'}
             </span>
-            <button className="rounded-lg border border-slate-200 px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-100">
-              Modifier
-            </button>
           </div>
         ))}
       </div>
