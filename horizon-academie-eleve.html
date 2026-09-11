@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Horizon Académie — Espace Élève</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --navy:#14213D; --gold:#FCA311; --gold-dark:#dd8f0d;
+    --white:#FFFFFF; --mist:#E5E5E5; --mist-2:#F3F3F3;
+    --ink:#000000; --ink-soft:#2b2b2b; --ink-mute:#6b6b6b;
+    --danger:#C2402B; --danger-soft:#F7E4E1;
+    --font-display:'Fraunces', serif; --font-body:'IBM Plex Sans', sans-serif;
+  }
+  *,*::before,*::after{box-sizing:border-box;}
+  body{margin:0;font-family:var(--font-body);color:var(--ink);background:var(--mist-2);-webkit-font-smoothing:antialiased;}
+  h1,h2,h3,h4{font-family:var(--font-display);margin:0;color:var(--navy);}
+  p{margin:0;}
+  a{color:inherit;text-decoration:none;}
+  ul{list-style:none;margin:0;padding:0;}
+  button{font-family:inherit;cursor:pointer;background:none;border:none;}
+  :focus-visible{outline:2px solid var(--gold);outline-offset:2px;}
+  svg{display:block;}
+  table{border-collapse:collapse;width:100%;}
+
+  .app-shell{display:flex;min-height:100vh;}
+  .sidebar{width:264px;flex:none;background:var(--navy);color:var(--white);display:flex;flex-direction:column;padding:1.6rem 1.1rem;position:sticky;top:0;height:100vh;transition:transform .25s ease;z-index:60;}
+  .side-brand{display:flex;align-items:center;gap:.6rem;font-family:var(--font-display);font-weight:600;font-size:1.1rem;padding:.4rem .5rem 1.6rem;}
+  .side-brand svg{width:28px;height:28px;flex:none;}
+  .side-nav{display:flex;flex-direction:column;gap:.2rem;flex:1;overflow-y:auto;}
+  .nav-item{display:flex;align-items:center;gap:.85rem;padding:.75rem .85rem;border-radius:6px;color:rgba(255,255,255,.72);font-size:.9rem;font-weight:500;border-left:3px solid transparent;}
+  .nav-item .nav-icon{width:19px;height:19px;flex:none;color:rgba(255,255,255,.6);}
+  .nav-item:hover{background:rgba(255,255,255,.06);color:var(--white);}
+  .nav-item.active{background:rgba(255,255,255,.08);color:var(--white);border-left-color:var(--gold);}
+  .nav-item.active .nav-icon{color:var(--gold);}
+  .side-account{display:flex;align-items:center;gap:.7rem;padding:1rem .5rem .3rem;border-top:1px solid rgba(255,255,255,.12);margin-top:.8rem;}
+  .account-avatar{width:36px;height:36px;border-radius:50%;background:var(--gold);color:var(--navy);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.8rem;flex:none;}
+  .account-name{font-size:.87rem;font-weight:600;}
+  .account-role{font-size:.76rem;color:rgba(255,255,255,.6);}
+
+  .main{flex:1;min-width:0;display:flex;flex-direction:column;}
+  .topbar{display:flex;align-items:center;gap:1.2rem;padding:1.2rem 2rem;background:var(--white);border-bottom:1px solid var(--mist);position:sticky;top:0;z-index:40;}
+  .sidebar-toggle{display:none;padding:.3rem;color:var(--navy);}
+  .topbar h1{font-size:1.3rem;flex:1;}
+  .topbar-sub{font-size:.82rem;color:var(--ink-mute);}
+  .content{padding:2rem;flex:1;}
+  .panel{display:none;}
+  .panel.active{display:block;}
+
+  .kpi-row{display:grid;grid-template-columns:repeat(3,1fr);gap:1.1rem;margin-bottom:1.5rem;}
+  .kpi-card{background:var(--white);border-radius:8px;padding:1.4rem 1.5rem;border-top:3px solid var(--navy);}
+  .kpi-card.highlight{border-top-color:var(--gold);}
+  .kpi-icon{width:30px;height:30px;color:var(--navy);}
+  .kpi-card.highlight .kpi-icon{color:var(--gold-dark);}
+  .kpi-num{font-family:var(--font-display);font-size:1.85rem;font-weight:600;margin-top:.7rem;}
+  .kpi-label{font-size:.85rem;color:var(--ink-mute);margin-top:.15rem;}
+
+  .card{background:var(--white);border-radius:8px;padding:1.5rem 1.6rem;margin-bottom:1.1rem;}
+  .card h3{font-size:1.05rem;margin-bottom:.4rem;}
+  .card-sub{font-size:.85rem;color:var(--ink-mute);margin-bottom:1.1rem;}
+  .btn{display:inline-flex;align-items:center;justify-content:center;padding:.8rem 1.6rem;border-radius:6px;font-weight:600;font-size:.9rem;transition:.15s;}
+  .btn-primary{background:var(--gold);color:var(--navy);}
+  .btn-primary:hover{background:var(--gold-dark);}
+  .btn-primary:disabled{background:var(--mist);color:var(--ink-mute);cursor:not-allowed;}
+
+  .welcome-note{display:flex;gap:1rem;align-items:flex-start;}
+  .welcome-avatar{width:42px;height:42px;border-radius:50%;background:var(--navy);color:var(--gold);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.85rem;flex:none;}
+  .welcome-text p{color:var(--ink-soft);font-size:.92rem;}
+  .welcome-text .signature{display:block;margin-top:.5rem;font-size:.82rem;color:var(--ink-mute);}
+
+  .todo-list{display:grid;gap:0;}
+  .todo-item{display:flex;align-items:flex-start;gap:.8rem;padding:.85rem 0;border-bottom:1px solid var(--mist);}
+  .todo-item:last-child{border-bottom:none;}
+  .todo-dot{width:9px;height:9px;border-radius:50%;background:var(--gold);margin-top:.4rem;flex:none;}
+  .todo-text{font-size:.9rem;color:var(--ink-soft);}
+  .todo-text b{color:var(--navy);}
+  .todo-when{font-size:.78rem;color:var(--ink-mute);margin-top:.15rem;}
+
+  .mini-table th{text-align:left;color:var(--ink-mute);font-weight:500;font-size:.78rem;padding-bottom:.6rem;border-bottom:1px solid var(--mist);}
+  .mini-table td{padding:.7rem 0;border-bottom:1px solid var(--mist);color:var(--ink-soft);font-size:.9rem;}
+  .mini-table tr:last-child td{border-bottom:none;}
+  .status-badge{padding:.3rem .7rem;border-radius:99px;font-size:.76rem;font-weight:600;}
+  .status-badge.ok{background:rgba(252,163,17,.15);color:var(--gold-dark);}
+  .status-badge.blocked{background:var(--danger-soft);color:var(--danger);}
+
+  .note-bar-track{width:120px;height:8px;background:var(--mist);border-radius:99px;overflow:hidden;}
+  .note-bar-fill{height:100%;background:var(--gold);border-radius:99px;}
+  .note-cell{display:flex;align-items:center;gap:.7rem;}
+  .teacher-note{font-size:.85rem;color:var(--danger);margin-top:1rem;padding:.8rem 1rem;background:var(--danger-soft);border-radius:6px;}
+  .highlight-row{display:flex;gap:1.5rem;flex-wrap:wrap;font-size:.88rem;color:var(--ink-soft);margin-bottom:1.3rem;}
+  .highlight-row b{color:var(--navy);}
+
+  .devoirs-feed{display:grid;gap:1rem;}
+  .feed-item{background:var(--white);border-radius:8px;padding:1.3rem 1.5rem;border-left:3px solid var(--gold);}
+  .feed-head{display:flex;justify-content:space-between;gap:1rem;margin-bottom:.5rem;flex-wrap:wrap;}
+  .feed-tag{font-size:.74rem;font-weight:600;color:var(--gold-dark);background:rgba(252,163,17,.12);padding:.25rem .6rem;border-radius:99px;white-space:nowrap;}
+  .feed-date{font-size:.78rem;color:var(--ink-mute);white-space:nowrap;}
+  .feed-item h4{font-size:.98rem;margin-bottom:.5rem;}
+  .feed-text{font-size:.87rem;color:var(--ink-soft);}
+  .feed-teacher{font-size:.78rem;color:var(--ink-mute);margin-top:.6rem;}
+
+  .soon-card{background:var(--white);border-radius:10px;padding:3rem 2.8rem;max-width:620px;}
+  .soon-icon{width:42px;height:42px;color:var(--navy);margin-bottom:1.1rem;}
+  .badge{display:inline-block;background:var(--mist-2);color:var(--ink-mute);font-size:.75rem;font-weight:600;padding:.3rem .7rem;border-radius:99px;margin-bottom:1rem;}
+  .soon-card h2{font-size:1.4rem;margin-bottom:.7rem;}
+  .soon-card>p{color:var(--ink-soft);max-width:52ch;margin-bottom:1.2rem;}
+  .soon-list{display:grid;gap:.55rem;}
+  .soon-list li{display:flex;gap:.6rem;align-items:flex-start;font-size:.9rem;color:var(--ink-soft);}
+  .soon-list li::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--gold);margin-top:.5rem;flex:none;}
+
+  .modal-overlay{position:fixed;inset:0;background:rgba(20,33,61,.55);display:none;align-items:center;justify-content:center;z-index:100;padding:2rem;}
+  .modal-overlay.open{display:flex;}
+  .modal-box{background:var(--white);border-radius:10px;max-width:880px;width:100%;max-height:90vh;overflow-y:auto;padding:2.2rem;position:relative;}
+  .modal-close{position:absolute;top:.9rem;right:1rem;font-size:1.5rem;line-height:1;color:var(--ink-mute);width:32px;height:32px;border-radius:50%;}
+  .modal-close:hover{background:var(--mist-2);}
+  .bulletin-doc{font-size:.85rem;}
+  .bulletin-header{text-align:center;margin-bottom:.8rem;}
+  .bulletin-header .emblem{font-size:2rem;}
+  .bulletin-header p{margin:0;font-weight:600;font-size:.8rem;color:var(--navy);}
+  .bulletin-idrow{display:flex;justify-content:space-between;font-size:.8rem;margin-bottom:.8rem;padding-bottom:.6rem;border-bottom:1px solid var(--mist);flex-wrap:wrap;gap:.4rem;}
+  .bulletin-infogrid{display:grid;grid-template-columns:1fr 1fr;gap:.4rem 1.5rem;font-size:.8rem;margin-bottom:1.1rem;padding-bottom:1rem;border-bottom:1px solid var(--mist);}
+  .bulletin-infogrid b{color:var(--ink-mute);font-weight:600;}
+  .bulletin-doctitle{text-align:center;font-size:.95rem;margin-bottom:1.1rem;line-height:1.4;}
+  .bulletin-table{font-size:.66rem;margin-bottom:1.2rem;width:100%;min-width:640px;}
+  .bulletin-table th,.bulletin-table td{border:1px solid var(--mist);padding:.3rem .32rem;text-align:center;}
+  .bulletin-table td:first-child,.bulletin-table th:first-child{text-align:left;}
+  .bulletin-table thead th{background:var(--navy);color:var(--white);font-weight:600;font-size:.64rem;}
+  .bulletin-table .maxima-row td{background:var(--mist-2);font-weight:600;}
+  .bulletin-summary{display:grid;gap:.45rem;font-size:.84rem;margin-bottom:1.5rem;}
+  .bulletin-summary b{color:var(--navy);margin-right:.4rem;}
+  .bulletin-signatures{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;font-size:.8rem;color:var(--ink-soft);}
+
+  @media (max-width:1080px){.kpi-row{grid-template-columns:repeat(2,1fr);}}
+  @media (max-width:860px){
+    .sidebar{position:fixed;left:0;transform:translateX(-100%);}
+    .sidebar.open{transform:translateX(0);}
+    .sidebar-toggle{display:block;}
+    .content{padding:1.3rem;}
+    .soon-card{padding:2.2rem 1.6rem;}
+    .bulletin-infogrid,.bulletin-signatures{grid-template-columns:1fr;}
+  }
+  @media (max-width:520px){.kpi-row{grid-template-columns:1fr;}}
+  @media print{
+    body *{visibility:hidden;}
+    .modal-box,.modal-box *{visibility:visible;}
+    .modal-box{position:absolute;top:0;left:0;max-height:none;overflow:visible;width:100%;}
+    .modal-close{display:none;}
+  }
+</style>
+</head>
+<body>
+<div class="app-shell">
+
+  <aside class="sidebar" id="sidebar">
+    <a href="horizon-academie-accueil.html" class="side-brand">
+      <svg viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="16" r="16" fill="#FCA311"/><circle cx="16" cy="14" r="7" fill="#14213D"/><rect x="4" y="21" width="24" height="2.4" fill="#14213D"/></svg>
+      Horizon Académie
+    </a>
+    <nav class="side-nav">
+      <a href="#" class="nav-item active" data-panel="dashboard">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><rect x="3" y="3" width="8" height="8" rx="1.5"/><rect x="13" y="3" width="8" height="8" rx="1.5"/><rect x="3" y="13" width="8" height="8" rx="1.5"/><rect x="13" y="13" width="8" height="8" rx="1.5"/></svg>
+        <span class="label">Tableau de bord</span>
+      </a>
+      <a href="#" class="nav-item" data-panel="notes">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M4 19 L4 13 L9 13 L9 19 M9 19 L9 8 L14 8 L14 19 M14 19 L14 5 L19 5 L19 19"/></svg>
+        <span class="label">Mes Notes</span>
+      </a>
+      <a href="#" class="nav-item" data-panel="agenda">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15" rx="2"/><path d="M3.5 9.5 H20.5 M8 3 V6.5 M16 3 V6.5"/></svg>
+        <span class="label">Mon Agenda</span>
+      </a>
+      <a href="#" class="nav-item" data-panel="travail">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M4 7 C4 6 5 5 6 5 H10 L12 7 H18 C19 7 20 8 20 9 V17 C20 18 19 19 18 19 H6 C5 19 4 18 4 17 Z"/></svg>
+        <span class="label">Mon Espace Travail</span>
+      </a>
+      <a href="#" class="nav-item" data-panel="absences">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7 V12 L15.5 14"/></svg>
+        <span class="label">Mes Absences</span>
+      </a>
+      <a href="#" class="nav-item" data-panel="messagerie">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M4 5 H20 V16 H9 L5 19 V16 H4 Z"/><path d="M8 9 H16 M8 12 H13"/></svg>
+        <span class="label">Messagerie</span>
+      </a>
+    </nav>
+    <div class="side-account">
+      <span class="account-avatar" aria-hidden="true">KT</span>
+      <div><div class="account-name">Kabeya Trésor</div><div class="account-role">1ère Humanités Scientifiques A</div></div>
+    </div>
+  </aside>
+
+  <div class="main">
+    <header class="topbar">
+      <button class="sidebar-toggle" id="sidebarToggle" aria-label="Ouvrir le menu">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M3 6 H21 M3 12 H21 M3 18 H21"/></svg>
+      </button>
+      <div>
+        <h1 id="pageTitle">Tableau de bord</h1>
+        <div class="topbar-sub">1ère Humanités Scientifiques A</div>
+      </div>
+    </header>
+
+    <div class="content">
+
+      <div class="panel active" id="panel-dashboard">
+        <div class="kpi-row">
+          <div class="kpi-card">
+            <svg class="kpi-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><rect x="5" y="5" width="14" height="16" rx="2"/><path d="M8.5 12.5 L10.5 14.5 L15 9.5"/></svg>
+            <div class="kpi-num">2</div>
+            <div class="kpi-label">Devoirs à rendre</div>
+          </div>
+          <div class="kpi-card">
+            <svg class="kpi-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15" rx="2"/><path d="M3.5 9.5 H20.5 M8 3 V6.5 M16 3 V6.5"/></svg>
+            <div class="kpi-num" style="font-size:1.3rem;">10 fév.</div>
+            <div class="kpi-label">Prochaine interrogation</div>
+          </div>
+          <div class="kpi-card highlight">
+            <svg class="kpi-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M4 19 L4 13 L9 13 L9 19 M9 19 L9 8 L14 8 L14 19 M14 19 L14 5 L19 5 L19 19"/></svg>
+            <div class="kpi-num" id="kpiMoyenne">—</div>
+            <div class="kpi-label">Moyenne actuelle</div>
+          </div>
+        </div>
+        <div class="card">
+          <h3>Message de votre titulaire</h3>
+          <div class="welcome-note" style="margin-top:.8rem;">
+            <span class="welcome-avatar" aria-hidden="true">MM</span>
+            <div class="welcome-text">
+              <p>« Bonjour Trésor, bon travail ce trimestre ! Il me manque encore ta note de laboratoire en Sciences — vois avec M. Kasongo avant vendredi pour que ton bulletin puisse être généré. »</p>
+              <span class="signature">Mme Mbuyi, titulaire de la 1ère A</span>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <h3>À faire</h3>
+          <div class="todo-list">
+            <div class="todo-item">
+              <span class="todo-dot"></span>
+              <div><p class="todo-text"><b>Mathématiques</b> — Exercices sur les équations du premier degré</p><p class="todo-when">À rendre demain</p></div>
+            </div>
+            <div class="todo-item">
+              <span class="todo-dot"></span>
+              <div><p class="todo-text"><b>Sciences</b> — Rapport de laboratoire à remettre à M. Kasongo</p><p class="todo-when">En retard</p></div>
+            </div>
+            <div class="todo-item">
+              <span class="todo-dot"></span>
+              <div><p class="todo-text"><b>Mathématiques</b> — Interrogation écrite sur les équations</p><p class="todo-when">Lundi 10 février</p></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel" id="panel-notes">
+        <div class="card">
+          <h3>Mes Notes — 1ère Humanités Scientifiques A</h3>
+          <p class="card-sub">Cumul de l'année (périodes + examens), sur le maximum de chaque matière.</p>
+          <div class="highlight-row" id="highlightRow"></div>
+          <table class="mini-table" id="notesTable">
+            <thead><tr><th>Matière</th><th>Progression</th><th>Note</th></tr></thead>
+            <tbody></tbody>
+          </table>
+          <p class="teacher-note" id="blockedNote" style="display:none;"></p>
+          <button class="btn btn-primary" id="voirBulletinBtn" style="margin-top:1rem;">Voir mon bulletin officiel</button>
+        </div>
+      </div>
+
+      <div class="panel" id="panel-agenda">
+        <div class="soon-card">
+          <svg class="soon-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15" rx="2"/><path d="M3.5 9.5 H20.5 M8 3 V6.5 M16 3 V6.5"/></svg>
+          <span class="badge">Bientôt disponible</span>
+          <h2>Mon Agenda</h2>
+          <p>Votre emploi du temps personnalisé, matière par matière.</p>
+          <ul class="soon-list">
+            <li>Vue hebdomadaire personnalisée</li>
+            <li>Salles et professeurs</li>
+            <li>Alertes de changement</li>
+            <li>Synchronisation avec l'école</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="panel" id="panel-travail">
+        <div class="card">
+          <h3>Mon Espace Travail</h3>
+          <p class="card-sub">Les cours, exercices et devoirs déposés par vos enseignants.</p>
+        </div>
+        <div class="devoirs-feed">
+          <div class="feed-item">
+            <div class="feed-head"><span class="feed-tag">Mathématiques</span><span class="feed-date">Il y a 3 jours</span></div>
+            <h4>Équations du premier degré</h4>
+            <p class="feed-text">Faire les exercices 12 à 18 page 56. Prévoir une interrogation écrite la semaine prochaine.</p>
+            <p class="feed-teacher">Déposé par Mme Mbuyi</p>
+          </div>
+          <div class="feed-item">
+            <div class="feed-head"><span class="feed-tag">Sciences (Bio-Chimie-Physique)</span><span class="feed-date">Il y a 5 jours</span></div>
+            <h4>Rapport de laboratoire — Réactions chimiques</h4>
+            <p class="feed-text">Rédiger le compte-rendu de l'expérience réalisée en classe et le remettre en main propre.</p>
+            <p class="feed-teacher">Déposé par M. Kasongo</p>
+          </div>
+          <div class="feed-item">
+            <div class="feed-head"><span class="feed-tag">Français</span><span class="feed-date">Il y a 1 semaine</span></div>
+            <h4>Lecture analytique — Chapitre 5</h4>
+            <p class="feed-text">Lire le chapitre 5 et préparer une fiche de lecture pour le prochain cours.</p>
+            <p class="feed-teacher">Déposé par Mme Kalonji</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel" id="panel-absences">
+        <div class="card">
+          <h3>Mes Absences</h3>
+          <table class="mini-table">
+            <thead><tr><th>Date</th><th>Motif</th><th>Statut</th></tr></thead>
+            <tbody>
+              <tr><td>12 janvier 2026</td><td>Rendez-vous médical</td><td><span class="status-badge ok">Justifiée</span></td></tr>
+              <tr><td>28 janvier 2026</td><td>—</td><td><span class="status-badge blocked">Non justifiée</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="panel" id="panel-messagerie">
+        <div class="soon-card">
+          <svg class="soon-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M4 5 H20 V16 H9 L5 19 V16 H4 Z"/><path d="M8 9 H16 M8 12 H13"/></svg>
+          <span class="badge">Bientôt disponible</span>
+          <h2>Messagerie</h2>
+          <p>Un espace limité pour écrire à un professeur — une copie est envoyée à vos parents par transparence.</p>
+          <ul class="soon-list">
+            <li>Message à un professeur</li>
+            <li>Copie automatique aux parents</li>
+            <li>Réception des notes de service</li>
+            <li>Historique des échanges</li>
+          </ul>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="bulletinModal">
+  <div class="modal-box">
+    <button class="modal-close" id="modalCloseBtn" aria-label="Fermer">×</button>
+    <div id="bulletinContent"></div>
+  </div>
+</div>
+
+<script>
+  function seededRandom(seed){ const x = Math.sin(seed) * 10000; return x - Math.floor(x); }
+  function escapeHTML(str){ const div = document.createElement('div'); div.textContent = str; return div.innerHTML; }
+
+  const subjectsTresor = [
+    {key:'religion', label:'Religion', max:10},{key:'francais', label:'Français', max:20},
+    {key:'anglais', label:'Anglais', max:10},{key:'maths', label:'Mathématiques', max:20},
+    {key:'sciences', label:'Sciences (Bio-Chimie-Physique)', max:10},{key:'histgeo', label:'Histoire - Géographie', max:10},
+    {key:'civique', label:'Éducation civique', max:10},{key:'eps', label:'Éducation physique et sportive', max:10},
+    {key:'info', label:'Informatique', max:10}
+  ];
+  const subjectGroupsTresor = [
+    { max:10, keys:['religion','anglais','sciences','histgeo','civique','eps','info'] },
+    { max:20, keys:['francais','maths'] }
+  ];
+  const TRESOR_ID = 1;
+  const gradesTresor = {};
+  subjectsTresor.forEach((subj, si) => {
+    if (subj.key === 'sciences') {
+      gradesTresor[subj.key] = [null,null,null,null,null,null];
+    } else {
+      gradesTresor[subj.key] = [0,1,2,3,4,5].map((pi) => {
+        const r = seededRandom(TRESOR_ID*97 + si*13 + pi*7 + 1);
+        return Math.round(subj.max*0.55 + r*subj.max*0.4);
+      });
+    }
+  });
+
+  function computeBulletin(){
+    const rows=[]; let totGeneral=0, maximaGeneral=0; const missing=[];
+    subjectGroupsTresor.forEach((group) => {
+      let mp1=0,mp2=0,mE1=0,mp3=0,mp4=0,mE2=0;
+      group.keys.forEach((key) => {
+        const subj = subjectsTresor.find(s => s.key === key);
+        const vals = gradesTresor[key];
+        const incomplete = vals.some(v => v === null);
+        if (incomplete) missing.push(subj.label);
+        const p1v=vals[0]||0,p2v=vals[1]||0,e1v=vals[2]||0,p3v=vals[3]||0,p4v=vals[4]||0,e2v=vals[5]||0;
+        const sem1=p1v+p2v+e1v, sem2=p3v+p4v+e2v, tg=sem1+sem2;
+        rows.push({label:subj.label, p1:vals[0],p2:vals[1],exam1:vals[2],sem1,p3:vals[3],p4:vals[4],exam2:vals[5],sem2,tg, max:subj.max, incomplete});
+        mp1+=group.max;mp2+=group.max;mE1+=group.max;mp3+=group.max;mp4+=group.max;mE2+=group.max;
+        totGeneral+=tg;
+      });
+      const ms1=mp1+mp2+mE1, ms2=mp3+mp4+mE2, mtg=ms1+ms2;
+      maximaGeneral += mtg;
+      rows.push({isMaxima:true, maxP1:mp1,maxP2:mp2,maxE1:mE1,maxSem1:ms1,maxP3:mp3,maxP4:mp4,maxE2:mE2,maxSem2:ms2,maxTG:mtg});
+    });
+    return { rows, totGeneral, maximaGeneral, missing, pourcentage:((totGeneral/maximaGeneral)*100).toFixed(1) };
+  }
+
+  /* ================= navigation ================= */
+  const navItems = document.querySelectorAll('.side-nav .nav-item');
+  const panels = document.querySelectorAll('.panel');
+  const pageTitle = document.getElementById('pageTitle');
+  navItems.forEach((item) => {
+    item.addEventListener('click', (e) => {
+      e.preventDefault();
+      navItems.forEach(i => i.classList.remove('active'));
+      item.classList.add('active');
+      const target = item.getAttribute('data-panel');
+      panels.forEach(p => p.classList.toggle('active', p.id === 'panel-' + target));
+      pageTitle.textContent = item.querySelector('.label').textContent;
+      document.getElementById('sidebar').classList.remove('open');
+    });
+  });
+  document.getElementById('sidebarToggle').addEventListener('click', () => {
+    document.getElementById('sidebar').classList.toggle('open');
+  });
+
+  /* ================= Mes Notes ================= */
+  const comp = computeBulletin();
+  const subjectRows = comp.rows.filter(r => !r.isMaxima);
+
+  const tbody = document.querySelector('#notesTable tbody');
+  tbody.innerHTML = subjectRows.map((r) => {
+    const subjectMax = r.max * 6;
+    if (r.incomplete) {
+      return `<tr><td>${escapeHTML(r.label)}</td><td><div class="note-bar-track"></div></td><td>En attente</td></tr>`;
+    }
+    const pct = Math.round((r.tg / subjectMax) * 100);
+    return `<tr><td>${escapeHTML(r.label)}</td>
+      <td><div class="note-cell"><div class="note-bar-track"><div class="note-bar-fill" style="width:${pct}%;"></div></div></div></td>
+      <td>${r.tg} / ${subjectMax}</td></tr>`;
+  }).join('');
+
+  const completeRows = subjectRows.filter(r => !r.incomplete).map(r => ({ label:r.label, pct: r.tg/(r.max*6) }));
+  const best = completeRows.reduce((a,b) => b.pct > a.pct ? b : a);
+  const worst = completeRows.reduce((a,b) => b.pct < a.pct ? b : a);
+  document.getElementById('highlightRow').innerHTML =
+    `<span>Point fort : <b>${escapeHTML(best.label)}</b></span><span>À renforcer : <b>${escapeHTML(worst.label)}</b></span><span>En attente : <b>Sciences (Bio-Chimie-Physique)</b></span>`;
+
+  document.getElementById('kpiMoyenne').textContent = comp.missing.length ? '—' : comp.pourcentage + '%';
+
+  const blockedNote = document.getElementById('blockedNote');
+  const voirBulletinBtn = document.getElementById('voirBulletinBtn');
+  if (comp.missing.length) {
+    blockedNote.style.display = 'block';
+    blockedNote.textContent = 'Bulletin non disponible : il manque une cote en ' + [...new Set(comp.missing)].join(', ') + '.';
+    voirBulletinBtn.disabled = true;
+  }
+
+  voirBulletinBtn.addEventListener('click', () => {
+    if (comp.missing.length) return;
+    let rowsHTML = '';
+    comp.rows.forEach((r) => {
+      if (r.isMaxima) rowsHTML += `<tr class="maxima-row"><td>MAXIMA</td><td>${r.maxP1}</td><td>${r.maxP2}</td><td>${r.maxE1}</td><td>${r.maxSem1}</td><td>${r.maxP3}</td><td>${r.maxP4}</td><td>${r.maxE2}</td><td>${r.maxSem2}</td><td>${r.maxTG}</td><td></td></tr>`;
+      else rowsHTML += `<tr><td>${escapeHTML(r.label)}</td><td>${r.p1}</td><td>${r.p2}</td><td>${r.exam1}</td><td>${r.sem1}</td><td>${r.p3}</td><td>${r.p4}</td><td>${r.exam2}</td><td>${r.sem2}</td><td>${r.tg}</td><td>—</td></tr>`;
+    });
+    document.getElementById('bulletinContent').innerHTML = `
+      <div class="bulletin-doc">
+        <div class="bulletin-header">
+          <div class="emblem" aria-hidden="true">🇨🇩</div>
+          <p>RÉPUBLIQUE DÉMOCRATIQUE DU CONGO</p>
+          <p>MINISTÈRE DE L'ÉDUCATION NATIONALE ET NOUVELLE CITOYENNETÉ</p>
+        </div>
+        <div class="bulletin-idrow"><span>N° ID : 0001</span><span>PROVINCE ÉDUCATIONNELLE : Kinshasa</span></div>
+        <div class="bulletin-infogrid">
+          <div><b>VILLE :</b> Kinshasa</div>
+          <div><b>ÉLÈVE :</b> Kabeya Trésor</div>
+          <div><b>COMMUNE/TER :</b> Lemba</div>
+          <div><b>CLASSE :</b> 1ère Humanités Scientifiques A</div>
+          <div><b>ÉCOLE :</b> Horizon Académie</div>
+          <div><b>N° PERM :</b> ........</div>
+        </div>
+        <h3 class="bulletin-doctitle">BULLETIN DE LA 1ère ANNÉE HUMANITÉS SCIENTIFIQUES — ANNÉE SCOLAIRE 2024-2025</h3>
+        <div style="overflow-x:auto;">
+        <table class="bulletin-table">
+          <thead>
+            <tr><th rowspan="2">BRANCHES</th><th colspan="4">PREMIER SEMESTRE</th><th colspan="4">SECOND SEMESTRE</th><th rowspan="2">T.G.</th><th rowspan="2">Repêch.</th></tr>
+            <tr><th>1ᵉ P.</th><th>2ᵉ P.</th><th>Exam.</th><th>Tot.</th><th>3ᵉ P.</th><th>4ᵉ P.</th><th>Exam.</th><th>Tot.</th></tr>
+          </thead>
+          <tbody>${rowsHTML}</tbody>
+        </table>
+        </div>
+        <div class="bulletin-summary">
+          <div><b>TOTAUX :</b> ${comp.totGeneral} / ${comp.maximaGeneral}</div>
+          <div><b>POURCENTAGE :</b> ${comp.pourcentage}%</div>
+          <div><b>PLACE / NBRE D'ÉLÈVES :</b> — / 12</div>
+          <div><b>APPLICATION :</b> Bien</div>
+          <div><b>CONDUITE :</b> Bonne</div>
+        </div>
+        <div class="bulletin-signatures">
+          <div>Signature du responsable<br><br>_______________________</div>
+          <div>Fait à Kinshasa, le ${new Date().toLocaleDateString('fr-FR')}<br>Le Chef d'établissement<br><br>_______________________</div>
+        </div>
+      </div>
+    `;
+    document.getElementById('bulletinModal').classList.add('open');
+  });
+  document.getElementById('modalCloseBtn').addEventListener('click', () => {
+    document.getElementById('bulletinModal').classList.remove('open');
+  });
+  document.getElementById('bulletinModal').addEventListener('click', (e) => {
+    if (e.target.id === 'bulletinModal') e.target.classList.remove('open');
+  });
+</script>
+</body>
+</html>

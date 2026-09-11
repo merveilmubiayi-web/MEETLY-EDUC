@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Horizon Académie — Vision 360° | Espace Administration</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --navy:#14213D; --navy-soft:#1c2c52;
+    --gold:#FCA311; --gold-dark:#dd8f0d;
+    --white:#FFFFFF; --mist:#E5E5E5; --mist-2:#F3F3F3;
+    --ink:#000000; --ink-soft:#2b2b2b; --ink-mute:#6b6b6b;
+    --danger:#C2402B; --danger-soft:#F7E4E1;
+    --font-display:'Fraunces', serif; --font-body:'IBM Plex Sans', sans-serif;
+  }
+  *,*::before,*::after{box-sizing:border-box;}
+  body{margin:0;font-family:var(--font-body);color:var(--ink);background:var(--mist-2);-webkit-font-smoothing:antialiased;}
+  h1,h2,h3{font-family:var(--font-display);margin:0;color:var(--navy);}
+  p{margin:0;}
+  a{color:inherit;text-decoration:none;}
+  ul{list-style:none;margin:0;padding:0;}
+  button{font-family:inherit;cursor:pointer;background:none;border:none;}
+  :focus-visible{outline:2px solid var(--gold);outline-offset:2px;}
+  svg{display:block;}
+
+  .app-shell{display:flex;min-height:100vh;}
+
+  /* sidebar */
+  .sidebar{
+    width:264px;flex:none;background:var(--navy);color:var(--white);
+    display:flex;flex-direction:column;padding:1.6rem 1.1rem;position:sticky;top:0;height:100vh;
+    transition:transform .25s ease;z-index:60;
+  }
+  .side-brand{display:flex;align-items:center;gap:.6rem;font-family:var(--font-display);font-weight:600;font-size:1.1rem;padding:.4rem .5rem 1.6rem;}
+  .side-brand svg{width:28px;height:28px;flex:none;}
+  .side-nav{display:flex;flex-direction:column;gap:.2rem;flex:1;overflow-y:auto;}
+  .nav-item{
+    display:flex;align-items:center;gap:.85rem;padding:.75rem .85rem;border-radius:6px;
+    color:rgba(255,255,255,.72);font-size:.92rem;font-weight:500;border-left:3px solid transparent;
+  }
+  .nav-item .nav-icon{width:19px;height:19px;flex:none;color:rgba(255,255,255,.6);}
+  .nav-item:hover{background:rgba(255,255,255,.06);color:var(--white);}
+  .nav-item.active{background:rgba(255,255,255,.08);color:var(--white);border-left-color:var(--gold);}
+  .nav-item.active .nav-icon{color:var(--gold);}
+  .side-account{display:flex;align-items:center;gap:.7rem;padding:1rem .5rem .3rem;border-top:1px solid rgba(255,255,255,.12);margin-top:.8rem;}
+  .account-avatar{width:36px;height:36px;border-radius:50%;background:var(--gold);color:var(--navy);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.82rem;flex:none;}
+  .account-name{font-size:.88rem;font-weight:600;}
+  .account-role{font-size:.78rem;color:rgba(255,255,255,.6);}
+
+  /* main */
+  .main{flex:1;min-width:0;display:flex;flex-direction:column;}
+  .topbar{
+    display:flex;align-items:center;gap:1.2rem;padding:1.2rem 2rem;background:var(--white);
+    border-bottom:1px solid var(--mist);position:sticky;top:0;z-index:40;
+  }
+  .sidebar-toggle{display:none;padding:.3rem;color:var(--navy);}
+  .topbar h1{font-size:1.35rem;flex:1;}
+  .topbar-actions{display:flex;align-items:center;gap:1rem;}
+  .search-box{
+    display:flex;align-items:center;gap:.5rem;background:var(--mist-2);border-radius:6px;
+    padding:.5rem .9rem;color:var(--ink-mute);width:220px;
+  }
+  .search-box svg{width:16px;height:16px;flex:none;}
+  .search-box input{border:none;background:none;font-family:inherit;font-size:.88rem;width:100%;color:var(--ink);}
+  .search-box input:focus{outline:none;}
+  .icon-btn{position:relative;padding:.5rem;color:var(--navy);}
+  .icon-btn svg{width:20px;height:20px;}
+  .icon-btn .dot{position:absolute;top:4px;right:4px;width:8px;height:8px;border-radius:50%;background:var(--danger);border:1.5px solid var(--white);}
+
+  .content{padding:2rem;flex:1;}
+  .panel{display:none;}
+  .panel.active{display:block;}
+
+  /* KPI cards */
+  .kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:1.1rem;margin-bottom:1.5rem;}
+  .kpi-card{background:var(--white);border-radius:8px;padding:1.4rem 1.5rem;border-top:3px solid var(--navy);}
+  .kpi-card.highlight{border-top-color:var(--gold);}
+  .kpi-top{display:flex;align-items:flex-start;justify-content:space-between;}
+  .kpi-icon{width:34px;height:34px;color:var(--navy);}
+  .kpi-card.highlight .kpi-icon{color:var(--gold-dark);}
+  .kpi-num{font-family:var(--font-display);font-size:2rem;font-weight:600;margin-top:.7rem;}
+  .kpi-label{font-size:.86rem;color:var(--ink-mute);margin-top:.15rem;}
+  .kpi-trend{display:flex;align-items:center;gap:.35rem;margin-top:.7rem;font-size:.8rem;color:var(--ink-mute);}
+  .kpi-trend svg{width:9px;height:9px;}
+  .kpi-trend.up svg{transform:rotate(180deg);}
+
+  /* two-col row: alerts + table, charts */
+  .row-2{display:grid;grid-template-columns:1.15fr .85fr;gap:1.1rem;margin-bottom:1.1rem;align-items:start;}
+  .card{background:var(--white);border-radius:8px;padding:1.5rem 1.6rem;}
+  .card h3{font-size:1.05rem;margin-bottom:1.1rem;}
+  .card-sub{font-size:.84rem;color:var(--ink-mute);margin-top:-.8rem;margin-bottom:1.1rem;}
+
+  .alert-item{display:flex;align-items:center;gap:.9rem;padding:.8rem 0;border-bottom:1px solid var(--mist);}
+  .alert-item:last-child{border-bottom:none;}
+  .alert-dot{width:9px;height:9px;border-radius:50%;background:var(--danger);flex:none;}
+  .alert-body{flex:1;min-width:0;}
+  .alert-name{font-size:.92rem;font-weight:600;color:var(--navy);}
+  .alert-meta{font-size:.8rem;color:var(--ink-mute);}
+  .alert-link{font-size:.82rem;font-weight:600;color:var(--danger);border-bottom:1.5px solid var(--danger);flex:none;}
+
+  .mini-table{width:100%;border-collapse:collapse;font-size:.88rem;}
+  .mini-table th{text-align:left;color:var(--ink-mute);font-weight:500;font-size:.78rem;padding-bottom:.6rem;border-bottom:1px solid var(--mist);}
+  .mini-table td{padding:.65rem 0;border-bottom:1px solid var(--mist);color:var(--ink-soft);}
+  .mini-table tr:last-child td{border-bottom:none;}
+  .mini-table td.num{font-weight:600;color:var(--navy);}
+
+  .chart-box{height:230px;}
+
+  /* coming soon */
+  .soon-card{background:var(--white);border-radius:10px;padding:3.2rem 3rem;max-width:640px;}
+  .soon-icon{width:44px;height:44px;color:var(--navy);margin-bottom:1.2rem;}
+  .badge{display:inline-block;background:var(--mist-2);color:var(--ink-mute);font-size:.76rem;font-weight:600;padding:.3rem .7rem;border-radius:99px;margin-bottom:1rem;}
+  .soon-card h2{font-size:1.5rem;margin-bottom:.7rem;}
+  .soon-card > p{color:var(--ink-soft);max-width:52ch;margin-bottom:1.3rem;}
+  .soon-list{display:grid;gap:.6rem;}
+  .soon-list li{display:flex;gap:.7rem;align-items:flex-start;font-size:.92rem;color:var(--ink-soft);}
+  .soon-list li::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--gold);margin-top:.5rem;flex:none;}
+
+  @media (max-width:1080px){
+    .kpi-row{grid-template-columns:repeat(2,1fr);}
+    .row-2{grid-template-columns:1fr;}
+  }
+  @media (max-width:860px){
+    .sidebar{position:fixed;left:0;transform:translateX(-100%);}
+    .sidebar.open{transform:translateX(0);}
+    .sidebar-toggle{display:block;}
+    .search-box{display:none;}
+    .content{padding:1.3rem;}
+    .soon-card{padding:2.2rem 1.6rem;}
+  }
+  @media (max-width:520px){
+    .kpi-row{grid-template-columns:1fr;}
+    .topbar{padding:1rem 1.2rem;}
+  }
+</style>
+</head>
+<body>
+<div class="app-shell">
+
+  <aside class="sidebar" id="sidebar">
+    <a href="horizon-academie-accueil.html" class="side-brand">
+      <svg viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="16" r="16" fill="#FCA311"/><circle cx="16" cy="14" r="7" fill="#14213D"/><rect x="4" y="21" width="24" height="2.4" fill="#14213D"/></svg>
+      Horizon Académie
+    </a>
+    <nav class="side-nav">
+      <a href="#" class="nav-item active" data-panel="dashboard">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><rect x="3" y="3" width="8" height="8" rx="1.5"/><rect x="13" y="3" width="8" height="8" rx="1.5"/><rect x="3" y="13" width="8" height="8" rx="1.5"/><rect x="13" y="13" width="8" height="8" rx="1.5"/></svg>
+        <span class="label">Vision 360°</span>
+      </a>
+      <a href="#" class="nav-item" data-panel="etablissements">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M4 21 V9 L12 4 L20 9 V21"/><path d="M9 21 V14 H15 V21"/></svg>
+        <span class="label">Établissements</span>
+      </a>
+      <a href="#" class="nav-item" data-panel="utilisateurs">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><circle cx="9" cy="8" r="3.2"/><path d="M3 20 C3 16 5.5 14 9 14 C12.5 14 15 16 15 20"/><circle cx="17" cy="9" r="2.6"/><path d="M15.5 14.3 C18.3 14.6 20 16.4 20 19.5"/></svg>
+        <span class="label">Utilisateurs</span>
+      </a>
+      <a href="#" class="nav-item" data-panel="pedagogie">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M4 6 C6.5 4.6 9 4.6 12 6 C15 4.6 17.5 4.6 20 6 V18 C17.5 16.6 15 16.6 12 18 C9 16.6 6.5 16.6 4 18 Z"/><path d="M12 6 V18"/></svg>
+        <span class="label">Pédagogie</span>
+      </a>
+      <a href="#" class="nav-item" data-panel="edt">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15" rx="2"/><path d="M3.5 9.5 H20.5 M8 3 V6.5 M16 3 V6.5"/></svg>
+        <span class="label">Emplois du temps</span>
+      </a>
+      <a href="#" class="nav-item" data-panel="workflows">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><circle cx="5" cy="6" r="2.2"/><circle cx="19" cy="6" r="2.2"/><circle cx="12" cy="18" r="2.2"/><path d="M7 7 L11 16 M17 7 L13 16"/></svg>
+        <span class="label">Workflows</span>
+      </a>
+      <a href="#" class="nav-item" data-panel="finances">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><circle cx="9" cy="9" r="6"/><circle cx="15" cy="15" r="6"/></svg>
+        <span class="label">Finances</span>
+      </a>
+      <a href="#" class="nav-item" data-panel="securite">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M12 3 L19 6 V11 C19 16 16 19.5 12 21 C8 19.5 5 16 5 11 V6 Z"/><path d="M9 11.5 L11 13.5 L15 9"/></svg>
+        <span class="label">Sécurité &amp; RGPD</span>
+      </a>
+      <a href="#" class="nav-item" data-panel="rapports">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><rect x="4" y="3" width="16" height="18" rx="1.5"/><path d="M8 16 V12 M12 16 V8 M16 16 V13"/></svg>
+        <span class="label">Rapports</span>
+      </a>
+    </nav>
+    <div class="side-account">
+      <span class="account-avatar" aria-hidden="true">SD</span>
+      <div><div class="account-name">Sophie Dubois</div><div class="account-role">Directrice</div></div>
+    </div>
+  </aside>
+
+  <div class="main">
+    <header class="topbar">
+      <button class="sidebar-toggle" id="sidebarToggle" aria-label="Ouvrir le menu">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M3 6 H21 M3 12 H21 M3 18 H21"/></svg>
+      </button>
+      <h1 id="pageTitle">Vision 360°</h1>
+      <div class="topbar-actions">
+        <div class="search-box">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20 L16.5 16.5"/></svg>
+          <input type="text" placeholder="Rechercher un élève, une classe..." aria-label="Rechercher">
+        </div>
+        <button class="icon-btn" aria-label="Notifications">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M6 9 C6 5.5 8.5 3.5 12 3.5 C15.5 3.5 18 5.5 18 9 C18 14 20 15 20 15 H4 C4 15 6 14 6 9 Z"/><path d="M10 18.5 C10.5 19.5 11.2 20 12 20 C12.8 20 13.5 19.5 14 18.5"/></svg>
+          <span class="dot"></span>
+        </button>
+      </div>
+    </header>
+
+    <div class="content">
+
+      <div class="panel active" id="panel-dashboard">
+        <div class="kpi-row">
+          <div class="kpi-card">
+            <div class="kpi-top">
+              <svg class="kpi-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="9" cy="8" r="3"/><path d="M3.5 19 C3.5 15.5 6 13.5 9 13.5 C12 13.5 14.5 15.5 14.5 19"/><circle cx="17" cy="9" r="2.4"/><path d="M15.8 13.8 C18.2 14.2 19.5 15.8 19.5 18.5"/></svg>
+              <div class="kpi-trend up"><svg viewBox="0 0 10 10"><path d="M1 3 L5 8 L9 3 Z" fill="currentColor"/></svg><span>+2.1%</span></div>
+            </div>
+            <div class="kpi-num">1 247</div>
+            <div class="kpi-label">Élèves accompagnés</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-top">
+              <svg class="kpi-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15" rx="2"/><path d="M3.5 9.5 H20.5 M8 3 V6.5 M16 3 V6.5"/><path d="M8 14 L10 16 L14 12"/></svg>
+              <div class="kpi-trend"><svg viewBox="0 0 10 10"><path d="M1 3 L5 8 L9 3 Z" fill="currentColor"/></svg><span>-0.4 pt</span></div>
+            </div>
+            <div class="kpi-num">3.2%</div>
+            <div class="kpi-label">Taux d'absentéisme global</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-top">
+              <svg class="kpi-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M4 19 L4 13 L9 13 L9 19 M9 19 L9 8 L14 8 L14 19 M14 19 L14 5 L19 5 L19 19"/></svg>
+              <div class="kpi-trend up"><svg viewBox="0 0 10 10"><path d="M1 3 L5 8 L9 3 Z" fill="currentColor"/></svg><span>+0.3 pt</span></div>
+            </div>
+            <div class="kpi-num">13.8<span style="font-size:1.1rem;color:var(--ink-mute);">/20</span></div>
+            <div class="kpi-label">Moyenne générale de l'école</div>
+          </div>
+          <div class="kpi-card highlight">
+            <div class="kpi-top">
+              <svg class="kpi-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="9" cy="9" r="6"/><circle cx="15" cy="15" r="6"/></svg>
+              <div class="kpi-trend up"><svg viewBox="0 0 10 10"><path d="M1 3 L5 8 L9 3 Z" fill="currentColor"/></svg><span>+5.8%</span></div>
+            </div>
+            <div class="kpi-num">184 500 €</div>
+            <div class="kpi-label">Encaissements du mois</div>
+          </div>
+        </div>
+
+        <div class="row-2">
+          <div class="card">
+            <h3>Alertes de sécurité</h3>
+            <div class="card-sub">Absences non justifiées de plus de 3 jours</div>
+            <div class="alert-item">
+              <span class="alert-dot" aria-hidden="true"></span>
+              <div class="alert-body"><div class="alert-name">Léa M. — 3ᵉB</div><div class="alert-meta">4 jours d'absence non justifiée</div></div>
+              <a href="#" class="alert-link">Voir le dossier</a>
+            </div>
+            <div class="alert-item">
+              <span class="alert-dot" aria-hidden="true"></span>
+              <div class="alert-body"><div class="alert-name">Thomas R. — 2ⁿᵈᵉA</div><div class="alert-meta">5 jours d'absence non justifiée</div></div>
+              <a href="#" class="alert-link">Voir le dossier</a>
+            </div>
+            <div class="alert-item">
+              <span class="alert-dot" aria-hidden="true"></span>
+              <div class="alert-body"><div class="alert-name">Sami K. — 4ᵉC</div><div class="alert-meta">3 jours d'absence non justifiée</div></div>
+              <a href="#" class="alert-link">Voir le dossier</a>
+            </div>
+          </div>
+          <div class="card">
+            <h3>Répartition par niveau</h3>
+            <table class="mini-table">
+              <thead><tr><th>Niveau</th><th>Effectif</th><th>Absent.</th><th>Moyenne</th></tr></thead>
+              <tbody>
+                <tr><td>Primaire</td><td class="num">412</td><td>2.1%</td><td class="num">14.5</td></tr>
+                <tr><td>Collège</td><td class="num">498</td><td>3.4%</td><td class="num">13.6</td></tr>
+                <tr><td>Lycée</td><td class="num">337</td><td>4.0%</td><td class="num">13.2</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="row-2">
+          <div class="card">
+            <h3>Évolution de la moyenne générale</h3>
+            <div class="chart-box"><canvas id="chartMoyenne"></canvas></div>
+          </div>
+          <div class="card">
+            <h3>Tendance des retards</h3>
+            <div class="chart-box"><canvas id="chartRetards"></canvas></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel" id="panel-etablissements">
+        <div class="soon-card">
+          <svg class="soon-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M4 21 V9 L12 4 L20 9 V21"/><path d="M9 21 V14 H15 V21"/></svg>
+          <span class="badge">Bientôt disponible</span>
+          <h2>Gestion des Établissements</h2>
+          <p>Créer, suspendre ou configurer les paramètres d'une autre école (nom, adresse, nombre de classes) — utile dès que la plateforme gère plusieurs établissements.</p>
+          <ul class="soon-list">
+            <li>Créer un nouvel établissement</li>
+            <li>Suspendre ou réactiver un établissement</li>
+            <li>Configurer nom, adresse, nombre de classes</li>
+            <li>Vue consolidée multi-établissements</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="panel" id="panel-utilisateurs">
+        <div class="soon-card">
+          <svg class="soon-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><circle cx="9" cy="8" r="3.2"/><path d="M3 20 C3 16 5.5 14 9 14 C12.5 14 15 16 15 20"/><circle cx="17" cy="9" r="2.6"/><path d="M15.5 14.3 C18.3 14.6 20 16.4 20 19.5"/></svg>
+          <span class="badge">Bientôt disponible</span>
+          <h2>Gestion des Utilisateurs</h2>
+          <p>L'annuaire complet de l'établissement : enseignants, parents, élèves et CPE, avec gestion des rôles et import massif.</p>
+          <ul class="soon-list">
+            <li>Ajouter, modifier, supprimer un utilisateur</li>
+            <li>Assigner les rôles (enseignant, parent, élève, CPE)</li>
+            <li>Import massif via CSV / Excel</li>
+            <li>Historique des accès par utilisateur</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="panel" id="panel-pedagogie">
+        <div class="soon-card">
+          <svg class="soon-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M4 6 C6.5 4.6 9 4.6 12 6 C15 4.6 17.5 4.6 20 6 V18 C17.5 16.6 15 16.6 12 18 C9 16.6 6.5 16.6 4 18 Z"/><path d="M12 6 V18"/></svg>
+          <span class="badge">Bientôt disponible</span>
+          <h2>Gestion Pédagogique</h2>
+          <p>La structure académique de l'école : classes, matières, sections, et l'affectation des enseignants.</p>
+          <ul class="soon-list">
+            <li>Créer classes, matières et sections</li>
+            <li>Assigner les enseignants aux classes</li>
+            <li>Définir les sections spécifiques (Euro, Sport-Études)</li>
+            <li>Structurer les niveaux, du Primaire à la Terminale</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="panel" id="panel-edt">
+        <div class="soon-card">
+          <svg class="soon-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15" rx="2"/><path d="M3.5 9.5 H20.5 M8 3 V6.5 M16 3 V6.5"/></svg>
+          <span class="badge">Bientôt disponible</span>
+          <h2>Emplois du temps global</h2>
+          <p>Visualiser tous les emplois du temps de l'établissement — par salle, par professeur ou par classe — et détecter les conflits de planning.</p>
+          <ul class="soon-list">
+            <li>Vue par salle, par professeur, par classe</li>
+            <li>Détection automatique des conflits</li>
+            <li>Export et diffusion des plannings</li>
+            <li>Vue consolidée de l'établissement</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="panel" id="panel-workflows">
+        <div class="soon-card">
+          <svg class="soon-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><circle cx="5" cy="6" r="2.2"/><circle cx="19" cy="6" r="2.2"/><circle cx="12" cy="18" r="2.2"/><path d="M7 7 L11 16 M17 7 L13 16"/></svg>
+          <span class="badge">Bientôt disponible</span>
+          <h2>Gestion des Flux (Workflows)</h2>
+          <p>Configurer les circuits de validation — par exemple, qui doit valider une autorisation de sortie — et les modèles de documents officiels.</p>
+          <ul class="soon-list">
+            <li>Configurer les circuits de validation</li>
+            <li>Définir les modèles de documents</li>
+            <li>Gérer signatures et en-têtes</li>
+            <li>Suivre l'avancement de chaque validation</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="panel" id="panel-finances">
+        <div class="soon-card">
+          <svg class="soon-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><circle cx="9" cy="9" r="6"/><circle cx="15" cy="15" r="6"/></svg>
+          <span class="badge">Bientôt disponible</span>
+          <h2>Gestion Financière</h2>
+          <p>Le suivi des impayés, la génération de factures globales et le paramétrage des frais de scolarité et de cantine.</p>
+          <ul class="soon-list">
+            <li>Suivi des impayés en temps réel</li>
+            <li>Génération de factures globales</li>
+            <li>Paramétrage des frais de scolarité et de cantine</li>
+            <li>Export comptable</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="panel" id="panel-securite">
+        <div class="soon-card">
+          <svg class="soon-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M12 3 L19 6 V11 C19 16 16 19.5 12 21 C8 19.5 5 16 5 11 V6 Z"/><path d="M9 11.5 L11 13.5 L15 9"/></svg>
+          <span class="badge">Bientôt disponible</span>
+          <h2>Sécurité &amp; RGPD</h2>
+          <p>La politique de mots de passe, le journal des connexions et les paramètres de purge des données, pour rester conforme au RGPD.</p>
+          <ul class="soon-list">
+            <li>Politique de mots de passe</li>
+            <li>Journal des connexions (audit trail)</li>
+            <li>Paramètres de purge des données</li>
+            <li>Conformité droit à l'oubli</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="panel" id="panel-rapports">
+        <div class="soon-card">
+          <svg class="soon-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><rect x="4" y="3" width="16" height="18" rx="1.5"/><path d="M8 16 V12 M12 16 V8 M16 16 V13"/></svg>
+          <span class="badge">Bientôt disponible</span>
+          <h2>Rapports avancés</h2>
+          <p>Exporter des rapports Excel ou PDF sur la réussite, l'absentéisme ou la progression des classes.</p>
+          <ul class="soon-list">
+            <li>Taux de réussite par classe</li>
+            <li>Absentéisme par tranche d'âge</li>
+            <li>Classement des enseignants (basé sur la progression)</li>
+            <li>Export Excel / PDF</li>
+          </ul>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js"></script>
+<script>
+  Chart.defaults.font.family = "'IBM Plex Sans', sans-serif";
+  Chart.defaults.color = '#2b2b2b';
+
+  new Chart(document.getElementById('chartMoyenne'), {
+    type: 'line',
+    data: {
+      labels: ['Trimestre 1', 'Trimestre 2', 'Trimestre 3'],
+      datasets: [{
+        label: 'Moyenne générale',
+        data: [13.2, 13.5, 13.8],
+        borderColor: '#14213D',
+        backgroundColor: 'rgba(20,33,61,0.08)',
+        fill: true,
+        tension: 0.35,
+        pointBackgroundColor: '#FCA311',
+        pointBorderWidth: 0,
+        pointRadius: 5,
+        borderWidth: 2.5
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: {
+        y: { min: 10, max: 16, grid: { color: '#E5E5E5' } },
+        x: { grid: { display: false } }
+      }
+    }
+  });
+
+  new Chart(document.getElementById('chartRetards'), {
+    type: 'bar',
+    data: {
+      labels: ['Sept', 'Oct', 'Nov', 'Déc', 'Jan'],
+      datasets: [{
+        label: 'Retards',
+        data: [42, 38, 51, 47, 35],
+        backgroundColor: '#FCA311',
+        borderRadius: 4,
+        maxBarThickness: 40
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: {
+        y: { beginAtZero: true, grid: { color: '#E5E5E5' } },
+        x: { grid: { display: false } }
+      }
+    }
+  });
+
+  const navItems = document.querySelectorAll('.side-nav .nav-item');
+  const panels = document.querySelectorAll('.panel');
+  const pageTitle = document.getElementById('pageTitle');
+  navItems.forEach((item) => {
+    item.addEventListener('click', (e) => {
+      e.preventDefault();
+      navItems.forEach((i) => i.classList.remove('active'));
+      item.classList.add('active');
+      const target = item.getAttribute('data-panel');
+      panels.forEach((p) => p.classList.toggle('active', p.id === 'panel-' + target));
+      pageTitle.textContent = item.querySelector('.label').textContent;
+      document.getElementById('sidebar').classList.remove('open');
+    });
+  });
+
+  document.getElementById('sidebarToggle').addEventListener('click', () => {
+    document.getElementById('sidebar').classList.toggle('open');
+  });
+</script>
+</body>
+</html>

@@ -1,0 +1,679 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Horizon Académie — Espace Parent</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --navy:#14213D; --gold:#FCA311; --gold-dark:#dd8f0d;
+    --white:#FFFFFF; --mist:#E5E5E5; --mist-2:#F3F3F3;
+    --ink:#000000; --ink-soft:#2b2b2b; --ink-mute:#6b6b6b;
+    --danger:#C2402B; --danger-soft:#F7E4E1;
+    --font-display:'Fraunces', serif; --font-body:'IBM Plex Sans', sans-serif;
+  }
+  *,*::before,*::after{box-sizing:border-box;}
+  body{margin:0;font-family:var(--font-body);color:var(--ink);background:var(--mist-2);-webkit-font-smoothing:antialiased;}
+  h1,h2,h3,h4{font-family:var(--font-display);margin:0;color:var(--navy);}
+  p{margin:0;}
+  a{color:inherit;text-decoration:none;}
+  ul{list-style:none;margin:0;padding:0;}
+  button{font-family:inherit;cursor:pointer;background:none;border:none;}
+  select,input,textarea{font-family:inherit;}
+  :focus-visible{outline:2px solid var(--gold);outline-offset:2px;}
+  svg{display:block;}
+  table{border-collapse:collapse;width:100%;}
+
+  .app-shell{display:flex;min-height:100vh;}
+  .sidebar{width:264px;flex:none;background:var(--navy);color:var(--white);display:flex;flex-direction:column;padding:1.6rem 1.1rem;position:sticky;top:0;height:100vh;transition:transform .25s ease;z-index:60;}
+  .side-brand{display:flex;align-items:center;gap:.6rem;font-family:var(--font-display);font-weight:600;font-size:1.1rem;padding:.4rem .5rem 1.6rem;}
+  .side-brand svg{width:28px;height:28px;flex:none;}
+  .side-nav{display:flex;flex-direction:column;gap:.2rem;flex:1;overflow-y:auto;}
+  .nav-item{display:flex;align-items:center;gap:.85rem;padding:.75rem .85rem;border-radius:6px;color:rgba(255,255,255,.72);font-size:.9rem;font-weight:500;border-left:3px solid transparent;}
+  .nav-item .nav-icon{width:19px;height:19px;flex:none;color:rgba(255,255,255,.6);}
+  .nav-item:hover{background:rgba(255,255,255,.06);color:var(--white);}
+  .nav-item.active{background:rgba(255,255,255,.08);color:var(--white);border-left-color:var(--gold);}
+  .nav-item.active .nav-icon{color:var(--gold);}
+  .side-account{display:flex;align-items:center;gap:.7rem;padding:1rem .5rem .3rem;border-top:1px solid rgba(255,255,255,.12);margin-top:.8rem;}
+  .account-avatar{width:36px;height:36px;border-radius:50%;background:var(--gold);color:var(--navy);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.8rem;flex:none;}
+  .account-name{font-size:.87rem;font-weight:600;}
+  .account-role{font-size:.76rem;color:rgba(255,255,255,.6);}
+
+  .main{flex:1;min-width:0;display:flex;flex-direction:column;}
+  .topbar{display:flex;align-items:center;gap:1.2rem;padding:1.2rem 2rem;background:var(--white);border-bottom:1px solid var(--mist);position:sticky;top:0;z-index:40;}
+  .sidebar-toggle{display:none;padding:.3rem;color:var(--navy);}
+  .topbar h1{font-size:1.3rem;flex:1;}
+  .topbar-sub{font-size:.82rem;color:var(--ink-mute);}
+  .content{padding:2rem;flex:1;}
+  .panel{display:none;}
+  .panel.active{display:block;}
+
+  .kpi-row{display:grid;grid-template-columns:repeat(3,1fr);gap:1.1rem;margin-bottom:1.5rem;}
+  .kpi-card{background:var(--white);border-radius:8px;padding:1.4rem 1.5rem;border-top:3px solid var(--navy);}
+  .kpi-card.highlight{border-top-color:var(--danger);}
+  .kpi-icon{width:30px;height:30px;color:var(--navy);}
+  .kpi-card.highlight .kpi-icon{color:var(--danger);}
+  .kpi-num{font-family:var(--font-display);font-size:1.85rem;font-weight:600;margin-top:.7rem;}
+  .kpi-label{font-size:.85rem;color:var(--ink-mute);margin-top:.15rem;}
+
+  .card{background:var(--white);border-radius:8px;padding:1.5rem 1.6rem;margin-bottom:1.1rem;}
+  .card h3{font-size:1.05rem;margin-bottom:.4rem;}
+  .card-sub{font-size:.85rem;color:var(--ink-mute);margin-bottom:1.1rem;}
+  .btn{display:inline-flex;align-items:center;justify-content:center;padding:.8rem 1.6rem;border-radius:6px;font-weight:600;font-size:.9rem;transition:.15s;}
+  .btn-primary{background:var(--gold);color:var(--navy);}
+  .btn-primary:hover{background:var(--gold-dark);}
+  .btn-primary:disabled{background:var(--mist);color:var(--ink-mute);cursor:not-allowed;}
+  .btn-link{color:var(--navy);font-weight:600;font-size:.86rem;border-bottom:1.5px solid var(--gold);padding-bottom:1px;}
+
+  .mini-table th{text-align:left;color:var(--ink-mute);font-weight:500;font-size:.78rem;padding-bottom:.6rem;border-bottom:1px solid var(--mist);}
+  .mini-table td{padding:.7rem 0;border-bottom:1px solid var(--mist);color:var(--ink-soft);font-size:.9rem;}
+  .mini-table tr:last-child td{border-bottom:none;}
+  .status-badge{padding:.3rem .7rem;border-radius:99px;font-size:.76rem;font-weight:600;white-space:nowrap;}
+  .status-badge.ok{background:rgba(252,163,17,.15);color:var(--gold-dark);}
+  .status-badge.blocked{background:var(--danger-soft);color:var(--danger);}
+  .status-badge.pending{background:var(--mist-2);color:var(--ink-mute);}
+
+  .course-switcher{display:flex;gap:1rem;margin-bottom:1.5rem;flex-wrap:wrap;}
+  .course-card{background:var(--white);border:2px solid var(--mist);border-radius:8px;padding:1.1rem 1.4rem;text-align:left;min-width:220px;}
+  .course-card.active{border-color:var(--gold);background:rgba(252,163,17,.06);}
+  .course-subject{display:block;font-weight:600;color:var(--navy);font-size:.95rem;}
+  .course-class{display:block;font-size:.82rem;color:var(--ink-mute);margin-top:.2rem;}
+
+  .toolbar-row{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem;margin-bottom:1.3rem;}
+  .teacher-note{font-size:.85rem;color:var(--danger);margin-top:1rem;padding:.8rem 1rem;background:var(--danger-soft);border-radius:6px;}
+
+  .children-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1.1rem;margin-top:.6rem;}
+  .child-card{background:var(--mist-2);border-radius:8px;padding:1.3rem 1.4rem;}
+  .child-name{font-weight:600;color:var(--navy);font-size:1rem;}
+  .child-class{font-size:.82rem;color:var(--ink-mute);margin-top:.15rem;margin-bottom:.8rem;}
+  .child-status{font-size:.85rem;padding:.5rem .7rem;border-radius:6px;}
+  .child-status.warn{background:var(--danger-soft);color:var(--danger);}
+  .child-status.good{background:rgba(252,163,17,.12);color:var(--gold-dark);}
+
+  .alert-list{display:grid;gap:0;}
+  .alert-item{display:flex;align-items:flex-start;gap:.8rem;padding:.85rem 0;border-bottom:1px solid var(--mist);}
+  .alert-item:last-child{border-bottom:none;}
+  .alert-dot{width:9px;height:9px;border-radius:50%;margin-top:.4rem;flex:none;}
+  .alert-dot.danger{background:var(--danger);}
+  .alert-dot.info{background:var(--gold);}
+  .alert-text{font-size:.9rem;color:var(--ink-soft);}
+  .alert-text b{color:var(--navy);}
+
+  .field-row{display:flex;gap:1rem;flex-wrap:wrap;margin-bottom:1rem;}
+  .field-row select{padding:.65rem .9rem;border-radius:6px;border:1px solid var(--mist);font-size:.88rem;width:280px;}
+  .photo-drop{display:flex;flex-direction:column;align-items:center;gap:.6rem;border:2px dashed var(--mist);border-radius:8px;padding:2rem;cursor:pointer;color:var(--ink-mute);text-align:center;font-size:.88rem;}
+  .photo-drop:hover{border-color:var(--gold);color:var(--navy);}
+  .photo-drop svg{width:30px;height:30px;}
+  #justificatifPreview{max-width:220px;border-radius:8px;margin:1rem auto;}
+
+  .modal-overlay{position:fixed;inset:0;background:rgba(20,33,61,.55);display:none;align-items:center;justify-content:center;z-index:100;padding:2rem;}
+  .modal-overlay.open{display:flex;}
+  .modal-box{background:var(--white);border-radius:10px;max-width:880px;width:100%;max-height:90vh;overflow-y:auto;padding:2.2rem;position:relative;}
+  .modal-close{position:absolute;top:.9rem;right:1rem;font-size:1.5rem;line-height:1;color:var(--ink-mute);width:32px;height:32px;border-radius:50%;}
+  .modal-close:hover{background:var(--mist-2);}
+  .bulletin-doc{font-size:.85rem;}
+  .bulletin-header{text-align:center;margin-bottom:.8rem;}
+  .bulletin-header .emblem{font-size:2rem;}
+  .bulletin-header p{margin:0;font-weight:600;font-size:.8rem;color:var(--navy);}
+  .bulletin-idrow{display:flex;justify-content:space-between;font-size:.8rem;margin-bottom:.8rem;padding-bottom:.6rem;border-bottom:1px solid var(--mist);flex-wrap:wrap;gap:.4rem;}
+  .bulletin-infogrid{display:grid;grid-template-columns:1fr 1fr;gap:.4rem 1.5rem;font-size:.8rem;margin-bottom:1.1rem;padding-bottom:1rem;border-bottom:1px solid var(--mist);}
+  .bulletin-infogrid b{color:var(--ink-mute);font-weight:600;}
+  .bulletin-doctitle{text-align:center;font-size:.95rem;margin-bottom:1.1rem;line-height:1.4;}
+  .bulletin-table{font-size:.66rem;margin-bottom:1.2rem;width:100%;min-width:600px;}
+  .bulletin-table th,.bulletin-table td{border:1px solid var(--mist);padding:.3rem .32rem;text-align:center;}
+  .bulletin-table td:first-child,.bulletin-table th:first-child{text-align:left;}
+  .bulletin-table thead th{background:var(--navy);color:var(--white);font-weight:600;font-size:.64rem;}
+  .bulletin-table .maxima-row td{background:var(--mist-2);font-weight:600;}
+  .bulletin-summary{display:grid;gap:.45rem;font-size:.84rem;margin-bottom:1.5rem;}
+  .bulletin-summary b{color:var(--navy);margin-right:.4rem;}
+  .bulletin-signatures{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;font-size:.8rem;color:var(--ink-soft);}
+
+  .soon-card{background:var(--white);border-radius:10px;padding:3rem 2.8rem;max-width:620px;}
+  .soon-icon{width:42px;height:42px;color:var(--navy);margin-bottom:1.1rem;}
+  .badge{display:inline-block;background:var(--mist-2);color:var(--ink-mute);font-size:.75rem;font-weight:600;padding:.3rem .7rem;border-radius:99px;margin-bottom:1rem;}
+  .soon-card h2{font-size:1.4rem;margin-bottom:.7rem;}
+  .soon-card>p{color:var(--ink-soft);max-width:52ch;margin-bottom:1.2rem;}
+  .soon-list{display:grid;gap:.55rem;}
+  .soon-list li{display:flex;gap:.6rem;align-items:flex-start;font-size:.9rem;color:var(--ink-soft);}
+  .soon-list li::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--gold);margin-top:.5rem;flex:none;}
+
+  @media (max-width:1080px){.kpi-row{grid-template-columns:repeat(2,1fr);}}
+  @media (max-width:860px){
+    .sidebar{position:fixed;left:0;transform:translateX(-100%);}
+    .sidebar.open{transform:translateX(0);}
+    .sidebar-toggle{display:block;}
+    .content{padding:1.3rem;}
+    .soon-card{padding:2.2rem 1.6rem;}
+    .bulletin-infogrid,.bulletin-signatures{grid-template-columns:1fr;}
+  }
+  @media (max-width:520px){.kpi-row{grid-template-columns:1fr;}}
+  @media print{
+    body *{visibility:hidden;}
+    .modal-box,.modal-box *{visibility:visible;}
+    .modal-box{position:absolute;top:0;left:0;max-height:none;overflow:visible;width:100%;}
+    .modal-close{display:none;}
+  }
+</style>
+</head>
+<body>
+<div class="app-shell">
+
+  <aside class="sidebar" id="sidebar">
+    <a href="horizon-academie-accueil.html" class="side-brand">
+      <svg viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="16" r="16" fill="#FCA311"/><circle cx="16" cy="14" r="7" fill="#14213D"/><rect x="4" y="21" width="24" height="2.4" fill="#14213D"/></svg>
+      Horizon Académie
+    </a>
+    <nav class="side-nav">
+      <a href="#" class="nav-item active" data-panel="dashboard">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><rect x="3" y="3" width="8" height="8" rx="1.5"/><rect x="13" y="3" width="8" height="8" rx="1.5"/><rect x="3" y="13" width="8" height="8" rx="1.5"/><rect x="13" y="13" width="8" height="8" rx="1.5"/></svg>
+        <span class="label">Tableau de bord</span>
+      </a>
+      <a href="#" class="nav-item" data-panel="suivi">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><rect x="5" y="4" width="14" height="17" rx="1.5"/><path d="M8 9 H16 M8 13 H16 M8 17 H13"/></svg>
+        <span class="label">Suivi Scolaire</span>
+      </a>
+      <a href="#" class="nav-item" data-panel="absences">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7 V12 L15.5 14"/></svg>
+        <span class="label">Absences &amp; Retards</span>
+      </a>
+      <a href="#" class="nav-item" data-panel="paiements">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><circle cx="9" cy="9" r="6"/><circle cx="15" cy="15" r="6"/></svg>
+        <span class="label">Paiements</span>
+      </a>
+      <a href="#" class="nav-item" data-panel="edt">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15" rx="2"/><path d="M3.5 9.5 H20.5 M8 3 V6.5 M16 3 V6.5"/></svg>
+        <span class="label">Emploi du temps</span>
+      </a>
+      <a href="#" class="nav-item" data-panel="messagerie">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M4 5 H20 V16 H9 L5 19 V16 H4 Z"/><path d="M8 9 H16 M8 12 H13"/></svg>
+        <span class="label">Messagerie</span>
+      </a>
+      <a href="#" class="nav-item" data-panel="documents">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><rect x="5" y="3" width="14" height="18" rx="1.5"/><path d="M8 8 H16 M8 12 H16 M8 16 H13"/></svg>
+        <span class="label">Documents</span>
+      </a>
+    </nav>
+    <div class="side-account">
+      <span class="account-avatar" aria-hidden="true">MK</span>
+      <div><div class="account-name">Mireille Kabeya</div><div class="account-role">Parent</div></div>
+    </div>
+  </aside>
+
+  <div class="main">
+    <header class="topbar">
+      <button class="sidebar-toggle" id="sidebarToggle" aria-label="Ouvrir le menu">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M3 6 H21 M3 12 H21 M3 18 H21"/></svg>
+      </button>
+      <div>
+        <h1 id="pageTitle">Tableau de bord</h1>
+        <div class="topbar-sub">Kabeya Trésor · Kabeya Sarah</div>
+      </div>
+    </header>
+
+    <div class="content">
+
+      <div class="panel active" id="panel-dashboard">
+        <div class="kpi-row">
+          <div class="kpi-card">
+            <svg class="kpi-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="9" cy="8" r="3"/><path d="M3.5 19 C3.5 15.5 6 13.5 9 13.5 C12 13.5 14.5 15.5 14.5 19"/><circle cx="17" cy="9" r="2.4"/><path d="M15.8 13.8 C18.2 14.2 19.5 15.8 19.5 18.5"/></svg>
+            <div class="kpi-num">2</div>
+            <div class="kpi-label">Enfants suivis</div>
+          </div>
+          <div class="kpi-card highlight">
+            <svg class="kpi-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M12 2 L22 20 H2 Z"/><path d="M12 9 V13.5 M12 16.5 V16.6"/></svg>
+            <div class="kpi-num">2</div>
+            <div class="kpi-label">Alertes actives</div>
+          </div>
+          <div class="kpi-card">
+            <svg class="kpi-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15" rx="2"/><path d="M3.5 9.5 H20.5 M8 3 V6.5 M16 3 V6.5"/></svg>
+            <div class="kpi-num" style="font-size:1.3rem;">15 fév.</div>
+            <div class="kpi-label">Réunion parents-profs</div>
+          </div>
+        </div>
+        <div class="card">
+          <h3>Vos enfants</h3>
+          <div class="children-grid">
+            <div class="child-card">
+              <div class="child-name">Kabeya Trésor</div>
+              <div class="child-class">1ère Humanités Scientifiques A</div>
+              <div class="child-status warn">Bulletin en attente : note manquante en Sciences</div>
+            </div>
+            <div class="child-card">
+              <div class="child-name">Kabeya Sarah</div>
+              <div class="child-class">3ème Année Primaire A</div>
+              <div class="child-status good">Notes à jour dans toutes les matières</div>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <h3>Alertes</h3>
+          <div class="alert-list">
+            <div class="alert-item"><span class="alert-dot danger"></span><p class="alert-text"><b>Kabeya Trésor</b> — absence non justifiée le 28 janvier 2026</p></div>
+            <div class="alert-item"><span class="alert-dot danger"></span><p class="alert-text"><b>Kabeya Trésor</b> — bulletin en attente (Sciences)</p></div>
+            <div class="alert-item"><span class="alert-dot info"></span><p class="alert-text">Réunion parents-professeurs le 15 février 2026</p></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel" id="panel-suivi">
+        <div class="course-switcher" id="childSwitcherSuivi">
+          <button class="course-card active" data-child="tresor">
+            <span class="course-subject">Kabeya Trésor</span>
+            <span class="course-class">1ère Humanités Scientifiques A</span>
+          </button>
+          <button class="course-card" data-child="sarah">
+            <span class="course-subject">Kabeya Sarah</span>
+            <span class="course-class">3ème Année Primaire A</span>
+          </button>
+        </div>
+        <div class="card">
+          <div class="toolbar-row">
+            <h3 id="suiviTitle" style="margin-bottom:0;">Relevé de notes</h3>
+            <button class="btn btn-primary" id="voirBulletinBtn">Voir le bulletin officiel</button>
+          </div>
+          <p class="card-sub">Notes cumulées (périodes + examens) sur l'année, comparées à la moyenne de la classe.</p>
+          <table class="mini-table" id="suiviTable">
+            <thead><tr><th>Matière</th><th>Kabeya</th><th>Moyenne de la classe</th></tr></thead>
+            <tbody></tbody>
+          </table>
+          <p class="teacher-note" id="suiviBlockedNote" style="display:none;"></p>
+        </div>
+      </div>
+
+      <div class="panel" id="panel-absences">
+        <div class="course-switcher" id="childSwitcherAbsences">
+          <button class="course-card active" data-child="tresor">
+            <span class="course-subject">Kabeya Trésor</span>
+            <span class="course-class">1ère Humanités Scientifiques A</span>
+          </button>
+          <button class="course-card" data-child="sarah">
+            <span class="course-subject">Kabeya Sarah</span>
+            <span class="course-class">3ème Année Primaire A</span>
+          </button>
+        </div>
+        <div class="card">
+          <h3>Historique des absences</h3>
+          <table class="mini-table" id="absencesTable">
+            <thead><tr><th>Date</th><th>Motif</th><th>Statut</th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+        <div class="card">
+          <h3>Déposer un justificatif</h3>
+          <p class="card-sub">Choisissez l'absence concernée, ajoutez une photo du certificat, puis envoyez-le au CPE pour validation.</p>
+          <div class="field-row">
+            <select id="absenceSelect"></select>
+          </div>
+          <label class="photo-drop" for="justificatifInput">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7 L9.5 4.5 H14.5 L16 7"/><circle cx="12" cy="13.5" r="3.2"/></svg>
+            <span>Cliquer pour photographier ou choisir le certificat</span>
+            <input type="file" id="justificatifInput" accept="image/*" hidden>
+          </label>
+          <img id="justificatifPreview" style="display:none;" alt="Aperçu du justificatif">
+          <button class="btn btn-primary" id="envoyerJustificatifBtn">Envoyer au CPE</button>
+        </div>
+      </div>
+
+      <div class="panel" id="panel-paiements">
+        <div class="card">
+          <h3>Paiements — famille Kabeya</h3>
+          <table class="mini-table">
+            <thead><tr><th>Libellé</th><th>Montant</th><th>Date</th><th>Statut</th><th></th></tr></thead>
+            <tbody>
+              <tr><td>Frais de scolarité — Trimestre 1</td><td>450 000 FC</td><td>05 sept. 2025</td><td><span class="status-badge ok">Payé</span></td><td><a href="#" class="btn-link">Reçu</a></td></tr>
+              <tr><td>Frais de scolarité — Trimestre 2</td><td>450 000 FC</td><td>10 janv. 2026</td><td><span class="status-badge ok">Payé</span></td><td><a href="#" class="btn-link">Reçu</a></td></tr>
+              <tr><td>Frais de cantine — Février</td><td>35 000 FC</td><td>02 fév. 2026</td><td><span class="status-badge ok">Payé</span></td><td><a href="#" class="btn-link">Reçu</a></td></tr>
+              <tr><td>Frais de scolarité — Trimestre 3</td><td>450 000 FC</td><td>Échéance : 10 avr. 2026</td><td><span class="status-badge pending">À échéance</span></td><td>—</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="panel" id="panel-edt">
+        <div class="soon-card">
+          <svg class="soon-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15" rx="2"/><path d="M3.5 9.5 H20.5 M8 3 V6.5 M16 3 V6.5"/></svg>
+          <span class="badge">Bientôt disponible</span>
+          <h2>Emploi du temps</h2>
+          <p>Le planning de chacun de vos enfants : matières, salles et professeurs.</p>
+          <ul class="soon-list">
+            <li>Planning par enfant</li>
+            <li>Salles et professeurs</li>
+            <li>Notifications de changement</li>
+            <li>Vue synchronisée avec l'école</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="panel" id="panel-messagerie">
+        <div class="soon-card">
+          <svg class="soon-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M4 5 H20 V16 H9 L5 19 V16 H4 Z"/><path d="M8 9 H16 M8 12 H13"/></svg>
+          <span class="badge">Bientôt disponible</span>
+          <h2>Messagerie</h2>
+          <p>Messagerie sécurisée avec les professeurs et la vie scolaire.</p>
+          <ul class="soon-list">
+            <li>Message à un professeur ou à la vie scolaire</li>
+            <li>Réception des notes de service</li>
+            <li>Alertes (grève, sortie scolaire)</li>
+            <li>Historique par enfant</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="panel" id="panel-documents">
+        <div class="soon-card">
+          <svg class="soon-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><rect x="5" y="3" width="14" height="18" rx="1.5"/><path d="M8 8 H16 M8 12 H16 M8 16 H13"/></svg>
+          <span class="badge">Bientôt disponible</span>
+          <h2>Documents administratifs</h2>
+          <p>Téléchargez les documents officiels de vos enfants.</p>
+          <ul class="soon-list">
+            <li>Certificat de scolarité</li>
+            <li>Livret scolaire</li>
+            <li>Autorisations de sortie signées</li>
+            <li>Téléchargement au format PDF</li>
+          </ul>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="bulletinModal">
+  <div class="modal-box">
+    <button class="modal-close" id="modalCloseBtn" aria-label="Fermer">×</button>
+    <div id="bulletinContent"></div>
+  </div>
+</div>
+
+<script>
+  function seededRandom(seed){ const x = Math.sin(seed) * 10000; return x - Math.floor(x); }
+  function escapeHTML(str){ const div = document.createElement('div'); div.textContent = str; return div.innerHTML; }
+
+  /* ================= Enfant 1 : Kabeya Trésor — 1ère Humanités Scientifiques A (secondaire) ================= */
+  const subjectsTresor = [
+    {key:'religion', label:'Religion', max:10},{key:'francais', label:'Français', max:20},
+    {key:'anglais', label:'Anglais', max:10},{key:'maths', label:'Mathématiques', max:20},
+    {key:'sciences', label:'Sciences (Bio-Chimie-Physique)', max:10},{key:'histgeo', label:'Histoire - Géographie', max:10},
+    {key:'civique', label:'Éducation civique', max:10},{key:'eps', label:'Éducation physique et sportive', max:10},
+    {key:'info', label:'Informatique', max:10}
+  ];
+  const subjectGroupsTresor = [
+    { max:10, keys:['religion','anglais','sciences','histgeo','civique','eps','info'] },
+    { max:20, keys:['francais','maths'] }
+  ];
+  const TRESOR_ID = 1;
+  const gradesTresor = {};
+  subjectsTresor.forEach((subj, si) => {
+    if (subj.key === 'sciences') {
+      gradesTresor[subj.key] = [null,null,null,null,null,null];
+    } else {
+      gradesTresor[subj.key] = [0,1,2,3,4,5].map((pi) => {
+        const r = seededRandom(TRESOR_ID*97 + si*13 + pi*7 + 1);
+        return Math.round(subj.max*0.55 + r*subj.max*0.4);
+      });
+    }
+  });
+
+  function computeBulletinSecondaire(subjects, subjectGroups, grades){
+    const rows=[]; let totGeneral=0, maximaGeneral=0; const missing=[];
+    subjectGroups.forEach((group) => {
+      let mp1=0,mp2=0,mE1=0,mp3=0,mp4=0,mE2=0;
+      group.keys.forEach((key) => {
+        const subj = subjects.find(s => s.key === key);
+        const vals = grades[key];
+        const incomplete = vals.some(v => v === null);
+        if (incomplete) missing.push(subj.label);
+        const p1v=vals[0]||0,p2v=vals[1]||0,e1v=vals[2]||0,p3v=vals[3]||0,p4v=vals[4]||0,e2v=vals[5]||0;
+        const sem1=p1v+p2v+e1v, sem2=p3v+p4v+e2v, tg=sem1+sem2;
+        rows.push({label:subj.label, p1:vals[0], p2:vals[1], exam1:vals[2], sem1, p3:vals[3], p4:vals[4], exam2:vals[5], sem2, tg, max:subj.max, slots:6, incomplete});
+        mp1+=group.max;mp2+=group.max;mE1+=group.max;mp3+=group.max;mp4+=group.max;mE2+=group.max;
+        totGeneral+=tg;
+      });
+      const ms1=mp1+mp2+mE1, ms2=mp3+mp4+mE2, mtg=ms1+ms2;
+      maximaGeneral += mtg;
+      rows.push({isMaxima:true, maxP1:mp1,maxP2:mp2,maxE1:mE1,maxSem1:ms1,maxP3:mp3,maxP4:mp4,maxE2:mE2,maxSem2:ms2,maxTG:mtg});
+    });
+    return { rows, totGeneral, maximaGeneral, missing, pourcentage:((totGeneral/maximaGeneral)*100).toFixed(1) };
+  }
+
+  /* ================= Enfant 2 : Kabeya Sarah — 3ème Année Primaire A ================= */
+  const subjectsSarah = [
+    {key:'religion', label:'Éducation religieuse', max:10},{key:'civique', label:'Éducation civique', max:10},
+    {key:'eps', label:'Éducation physique et sportive', max:10},{key:'dessin', label:'Dessin', max:10},
+    {key:'chant', label:'Chant', max:10},{key:'francais', label:'Français', max:20},{key:'maths', label:'Mathématiques', max:20},
+    {key:'eveil', label:'Éveil scientifique', max:10},{key:'histgeo', label:'Histoire - Géographie', max:10},
+    {key:'anglais', label:'Anglais', max:10},{key:'info', label:'Informatique', max:10},
+    {key:'langue', label:'Langue nationale (Kiswahili)', max:10}
+  ];
+  const subjectGroupsSarah = [
+    { max:10, keys:['religion','civique','eps','dessin','chant'] },
+    { max:20, keys:['francais','maths'] },
+    { max:10, keys:['eveil','histgeo','anglais','info','langue'] }
+  ];
+  const SARAH_ID = 11;
+  const gradesSarah = {};
+  subjectsSarah.forEach((subj, si) => {
+    gradesSarah[subj.key] = [0,1,2,3].map((pi) => {
+      const r = seededRandom(SARAH_ID*97 + si*13 + pi*7 + 1);
+      return Math.round(subj.max*0.55 + r*subj.max*0.4);
+    });
+  });
+
+  function computeBulletinPrimaire(subjects, subjectGroups, grades){
+    const rows=[]; let totGeneral=0, maximaGeneral=0; const missing=[];
+    subjectGroups.forEach((group) => {
+      let mp1=0,mp2=0,mp3=0,mp4=0;
+      group.keys.forEach((key) => {
+        const subj = subjects.find(s => s.key === key);
+        const vals = grades[key];
+        const incomplete = vals.some(v => v === null);
+        if (incomplete) missing.push(subj.label);
+        const p1v=vals[0]||0,p2v=vals[1]||0,p3v=vals[2]||0,p4v=vals[3]||0;
+        const sem1=p1v+p2v, sem2=p3v+p4v, tg=sem1+sem2;
+        rows.push({label:subj.label, p1:vals[0], p2:vals[1], sem1, p3:vals[2], p4:vals[3], sem2, tg, max:subj.max, slots:4, incomplete});
+        mp1+=group.max;mp2+=group.max;mp3+=group.max;mp4+=group.max;
+        totGeneral+=tg;
+      });
+      const ms1=mp1+mp2, ms2=mp3+mp4, mtg=ms1+ms2;
+      maximaGeneral += mtg;
+      rows.push({isMaxima:true, maxP1:mp1,maxP2:mp2,maxSem1:ms1,maxP3:mp3,maxP4:mp4,maxSem2:ms2,maxTG:mtg});
+    });
+    return { rows, totGeneral, maximaGeneral, missing, pourcentage:((totGeneral/maximaGeneral)*100).toFixed(1) };
+  }
+
+  const children = [
+    { id:'tresor', nom:'Kabeya Trésor', classe:'1ère Humanités Scientifiques A', niveau:'secondaire',
+      compute: () => computeBulletinSecondaire(subjectsTresor, subjectGroupsTresor, gradesTresor) },
+    { id:'sarah', nom:'Kabeya Sarah', classe:'3ème Année Primaire A', niveau:'primaire',
+      compute: () => computeBulletinPrimaire(subjectsSarah, subjectGroupsSarah, gradesSarah) }
+  ];
+
+  const absencesData = {
+    tresor: [
+      { date:'12 janvier 2026', motif:'Rendez-vous médical', statut:'justifiee' },
+      { date:'28 janvier 2026', motif:'—', statut:'non_justifiee' }
+    ],
+    sarah: [
+      { date:'20 janvier 2026', motif:'Maladie', statut:'justifiee' }
+    ]
+  };
+
+  /* ================= navigation ================= */
+  const navItems = document.querySelectorAll('.side-nav .nav-item');
+  const panels = document.querySelectorAll('.panel');
+  const pageTitle = document.getElementById('pageTitle');
+  navItems.forEach((item) => {
+    item.addEventListener('click', (e) => {
+      e.preventDefault();
+      navItems.forEach(i => i.classList.remove('active'));
+      item.classList.add('active');
+      const target = item.getAttribute('data-panel');
+      panels.forEach(p => p.classList.toggle('active', p.id === 'panel-' + target));
+      pageTitle.textContent = item.querySelector('.label').textContent;
+      document.getElementById('sidebar').classList.remove('open');
+    });
+  });
+  document.getElementById('sidebarToggle').addEventListener('click', () => {
+    document.getElementById('sidebar').classList.toggle('open');
+  });
+
+  /* ================= Suivi Scolaire ================= */
+  let currentChild = 'tresor';
+
+  function renderSuivi(){
+    const child = children.find(c => c.id === currentChild);
+    document.getElementById('suiviTitle').textContent = 'Relevé de notes — ' + child.nom;
+    const comp = child.compute();
+    const tbody = document.querySelector('#suiviTable tbody');
+    tbody.innerHTML = comp.rows.filter(r => !r.isMaxima).map((r) => {
+      const subjectMax = r.max * r.slots;
+      const classAvg = Math.round(subjectMax * 0.62);
+      const noteDisplay = r.incomplete ? 'En attente' : (r.tg + ' / ' + subjectMax);
+      return `<tr><td>${escapeHTML(r.label)}</td><td>${noteDisplay}</td><td>${classAvg} / ${subjectMax}</td></tr>`;
+    }).join('');
+    const btn = document.getElementById('voirBulletinBtn');
+    const note = document.getElementById('suiviBlockedNote');
+    if (comp.missing.length) {
+      btn.disabled = true;
+      note.style.display = 'block';
+      note.textContent = 'Bulletin non disponible : il manque une cote en ' + [...new Set(comp.missing)].join(', ') + '.';
+    } else {
+      btn.disabled = false;
+      note.style.display = 'none';
+    }
+  }
+  document.querySelectorAll('#childSwitcherSuivi .course-card').forEach((card) => {
+    card.addEventListener('click', () => {
+      document.querySelectorAll('#childSwitcherSuivi .course-card').forEach(c => c.classList.remove('active'));
+      card.classList.add('active');
+      currentChild = card.dataset.child;
+      renderSuivi();
+    });
+  });
+  renderSuivi();
+
+  function openBulletin(child){
+    const comp = child.compute();
+    let rowsHTML = '';
+    if (child.niveau === 'secondaire') {
+      comp.rows.forEach((r) => {
+        if (r.isMaxima) rowsHTML += `<tr class="maxima-row"><td>MAXIMA</td><td>${r.maxP1}</td><td>${r.maxP2}</td><td>${r.maxE1}</td><td>${r.maxSem1}</td><td>${r.maxP3}</td><td>${r.maxP4}</td><td>${r.maxE2}</td><td>${r.maxSem2}</td><td>${r.maxTG}</td><td></td></tr>`;
+        else rowsHTML += `<tr><td>${escapeHTML(r.label)}</td><td>${r.p1}</td><td>${r.p2}</td><td>${r.exam1}</td><td>${r.sem1}</td><td>${r.p3}</td><td>${r.p4}</td><td>${r.exam2}</td><td>${r.sem2}</td><td>${r.tg}</td><td>—</td></tr>`;
+      });
+    } else {
+      comp.rows.forEach((r) => {
+        if (r.isMaxima) rowsHTML += `<tr class="maxima-row"><td>MAXIMA</td><td>${r.maxP1}</td><td>${r.maxP2}</td><td>${r.maxSem1}</td><td>${r.maxP3}</td><td>${r.maxP4}</td><td>${r.maxSem2}</td><td>${r.maxTG}</td></tr>`;
+        else rowsHTML += `<tr><td>${escapeHTML(r.label)}</td><td>${r.p1}</td><td>${r.p2}</td><td>${r.sem1}</td><td>${r.p3}</td><td>${r.p4}</td><td>${r.sem2}</td><td>${r.tg}</td></tr>`;
+      });
+    }
+    const headHTML = child.niveau === 'secondaire'
+      ? '<tr><th rowspan="2">BRANCHES</th><th colspan="4">PREMIER SEMESTRE</th><th colspan="4">SECOND SEMESTRE</th><th rowspan="2">T.G.</th><th rowspan="2">Repêch.</th></tr><tr><th>1ᵉ P.</th><th>2ᵉ P.</th><th>Exam.</th><th>Tot.</th><th>3ᵉ P.</th><th>4ᵉ P.</th><th>Exam.</th><th>Tot.</th></tr>'
+      : '<tr><th rowspan="2">BRANCHES</th><th colspan="3">PREMIER SEMESTRE</th><th colspan="3">SECOND SEMESTRE</th><th rowspan="2">T.G.</th></tr><tr><th>1ᵉ P.</th><th>2ᵉ P.</th><th>Tot.</th><th>3ᵉ P.</th><th>4ᵉ P.</th><th>Tot.</th></tr>';
+    const titre = child.niveau === 'secondaire'
+      ? 'BULLETIN DE LA 1ère ANNÉE HUMANITÉS SCIENTIFIQUES — ANNÉE SCOLAIRE 2024-2025'
+      : 'BULLETIN DE LA 3ᵉ ANNÉE PRIMAIRE — ANNÉE SCOLAIRE 2024-2025';
+    document.getElementById('bulletinContent').innerHTML = `
+      <div class="bulletin-doc">
+        <div class="bulletin-header">
+          <div class="emblem" aria-hidden="true">🇨🇩</div>
+          <p>RÉPUBLIQUE DÉMOCRATIQUE DU CONGO</p>
+          <p>MINISTÈRE DE L'ÉDUCATION NATIONALE ET NOUVELLE CITOYENNETÉ</p>
+        </div>
+        <div class="bulletin-idrow"><span>N° ID : ${child.id === 'tresor' ? '0001' : '0011'}</span><span>PROVINCE ÉDUCATIONNELLE : Kinshasa</span></div>
+        <div class="bulletin-infogrid">
+          <div><b>VILLE :</b> Kinshasa</div>
+          <div><b>ÉLÈVE :</b> ${escapeHTML(child.nom)}</div>
+          <div><b>COMMUNE/TER :</b> Lemba</div>
+          <div><b>CLASSE :</b> ${escapeHTML(child.classe)}</div>
+          <div><b>ÉCOLE :</b> Horizon Académie</div>
+          <div><b>N° PERM :</b> ........</div>
+        </div>
+        <h3 class="bulletin-doctitle">${titre}</h3>
+        <div style="overflow-x:auto;">
+        <table class="bulletin-table"><thead>${headHTML}</thead><tbody>${rowsHTML}</tbody></table>
+        </div>
+        <div class="bulletin-summary">
+          <div><b>TOTAUX :</b> ${comp.totGeneral} / ${comp.maximaGeneral}</div>
+          <div><b>POURCENTAGE :</b> ${comp.pourcentage}%</div>
+          <div><b>PLACE / NBRE D'ÉLÈVES :</b> ${child.id === 'tresor' ? '—' : '4'} / ${child.id === 'tresor' ? '12' : '15'}</div>
+          <div><b>APPLICATION :</b> Bien</div>
+          <div><b>CONDUITE :</b> Bonne</div>
+        </div>
+        <div class="bulletin-signatures">
+          <div>Signature du responsable<br><br>_______________________</div>
+          <div>Fait à Kinshasa, le ${new Date().toLocaleDateString('fr-FR')}<br>Le Chef d'établissement<br><br>_______________________</div>
+        </div>
+      </div>
+    `;
+    document.getElementById('bulletinModal').classList.add('open');
+  }
+  document.getElementById('voirBulletinBtn').addEventListener('click', () => {
+    const child = children.find(c => c.id === currentChild);
+    if (!child.compute().missing.length) openBulletin(child);
+  });
+  document.getElementById('modalCloseBtn').addEventListener('click', () => {
+    document.getElementById('bulletinModal').classList.remove('open');
+  });
+  document.getElementById('bulletinModal').addEventListener('click', (e) => {
+    if (e.target.id === 'bulletinModal') e.target.classList.remove('open');
+  });
+
+  /* ================= Absences ================= */
+  let currentChildAbsences = 'tresor';
+  function statusLabel(statut){
+    if (statut === 'justifiee') return '<span class="status-badge ok">Justifiée</span>';
+    if (statut === 'en_attente') return '<span class="status-badge pending">Envoyée — en attente du CPE</span>';
+    return '<span class="status-badge blocked">Non justifiée</span>';
+  }
+  function renderAbsences(){
+    const list = absencesData[currentChildAbsences];
+    const tbody = document.querySelector('#absencesTable tbody');
+    tbody.innerHTML = list.map(a => `<tr><td>${a.date}</td><td>${escapeHTML(a.motif)}</td><td>${statusLabel(a.statut)}</td></tr>`).join('');
+    const select = document.getElementById('absenceSelect');
+    const nonJustifiees = list.filter(a => a.statut === 'non_justifiee');
+    select.innerHTML = nonJustifiees.length
+      ? nonJustifiees.map(a => `<option value="${a.date}">${a.date}</option>`).join('')
+      : '<option value="">Aucune absence à justifier</option>';
+  }
+  document.querySelectorAll('#childSwitcherAbsences .course-card').forEach((card) => {
+    card.addEventListener('click', () => {
+      document.querySelectorAll('#childSwitcherAbsences .course-card').forEach(c => c.classList.remove('active'));
+      card.classList.add('active');
+      currentChildAbsences = card.dataset.child;
+      renderAbsences();
+    });
+  });
+  renderAbsences();
+
+  document.getElementById('justificatifInput').addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        const img = document.getElementById('justificatifPreview');
+        img.src = ev.target.result;
+        img.style.display = 'block';
+      };
+      reader.readAsDataURL(file);
+    }
+  });
+  document.getElementById('envoyerJustificatifBtn').addEventListener('click', () => {
+    const dateChoisie = document.getElementById('absenceSelect').value;
+    const img = document.getElementById('justificatifPreview');
+    if (!dateChoisie) { alert("Il n'y a aucune absence à justifier pour cet enfant."); return; }
+    if (img.style.display === 'none' || !img.src) { alert('Merci de joindre une photo du certificat.'); return; }
+    const absence = absencesData[currentChildAbsences].find(a => a.date === dateChoisie);
+    if (absence) absence.statut = 'en_attente';
+    renderAbsences();
+    img.style.display = 'none'; img.src = '';
+    const btn = document.getElementById('envoyerJustificatifBtn');
+    const original = btn.textContent;
+    btn.textContent = 'Envoyé au CPE ✓';
+    setTimeout(() => { btn.textContent = original; }, 1800);
+  });
+</script>
+</body>
+</html>
