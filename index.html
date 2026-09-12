@@ -4,13 +4,13 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <meta name="theme-color" content="#14213D" />
-<title>Horizon Académie | École, pédagogie et suivi numérique</title>
-<meta name="description" content="Horizon Académie relie élèves, familles et enseignants dans un espace numérique unique : notes, absences, emplois du temps et échanges, accessibles en temps réel." />
+<title>Educ-Change  | École, pédagogie et suivi numérique</title>
+<meta name="description" content="Educ-Change  relie élèves, familles et enseignants dans un espace numérique unique : notes, absences, emplois du temps et échanges, accessibles en temps réel." />
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-  :root{
+:root{
     --navy:#14213D;
     --gold:#FCA311;
     --gold-dark:#dd8f0d;
@@ -269,6 +269,7 @@
     .form-row{grid-template-columns:1fr;}
     .modal-box{padding:1.8rem;}
   }
+
 </style>
 </head>
 <body>
@@ -281,7 +282,7 @@
         <circle cx="16" cy="14" r="7" fill="#FCA311"/>
         <rect x="4" y="21" width="24" height="2.4" fill="#14213D"/>
       </svg>
-      Horizon Académie
+      Educ-Change 
     </a>
     <ul class="nav-links">
       <li><a href="#accueil">Accueil</a></li>
@@ -317,7 +318,7 @@
       <div>
         <span class="eyebrow">Pédagogie &amp; numérique</span>
         <h1>Une école qui allie excellence académique et accompagnement humain.</h1>
-        <p class="lead">Horizon Académie accompagne élèves, familles et enseignants dans un environnement scolaire clair, sécurisé et performant : notes, absences, emploi du temps, messagerie et suivi personnalisé.</p>
+        <p class="lead">Educ-Change  accompagne élèves, familles et enseignants dans un environnement scolaire clair, sécurisé et performant : notes, absences, emploi du temps, messagerie et suivi personnalisé.</p>
         <div class="hero-ctas">
           <a href="#pourquoi" class="btn btn-outline">Découvrir l'école</a>
           <button class="btn btn-primary js-open-inscription">Inscription en ligne</button>
@@ -403,7 +404,7 @@
       </div>
       <div>
         <div class="section-head tight">
-          <h2>Pourquoi choisir Horizon Académie</h2>
+          <h2>Pourquoi choisir Educ-Change </h2>
           <p>Une exigence académique portée par des outils qui simplifient le quotidien de chacun.</p>
         </div>
         <ul class="why-list">
@@ -499,7 +500,7 @@
 
   <section class="cta-band" id="contact">
     <div class="container">
-      <h2>Prêt à rejoindre Horizon Académie ?</h2>
+      <h2>Prêt à rejoindre Educ-Change  ?</h2>
       <p>Planifiez une visite de l'établissement ou lancez directement une demande d'inscription en ligne.</p>
       <div class="cta-buttons">
         <a href="#contact" class="btn btn-outline-light">Planifier une visite</a>
@@ -519,7 +520,7 @@
             <circle cx="16" cy="14" r="7" fill="#14213D"/>
             <rect x="4" y="21" width="24" height="2.4" fill="#14213D"/>
           </svg>
-          Horizon Académie
+          Educ-Change 
         </a>
         <p>Une école qui conjugue exigence académique et clarté numérique, pour accompagner chaque élève et chaque famille au quotidien.</p>
         <div class="social-row">
@@ -551,7 +552,7 @@
         <ul>
           <li>12 avenue des Tilleuls, 75000 Paris</li>
           <li>01 23 45 67 89</li>
-          <li>contact@horizon-academie.fr</li>
+          <li>contact@Educ-Change-academie.fr</li>
         </ul>
         <div class="newsletter">
           <input type="email" placeholder="Votre e-mail" aria-label="Adresse e-mail">
@@ -562,7 +563,7 @@
       </div>
     </div>
     <div class="footer-bottom">
-      <span>© 2026 Horizon Académie. Tous droits réservés.</span>
+      <span>© 2026 Educ-Change . Tous droits réservés.</span>
       <div class="legal">
         <a href="#contact">Mentions légales</a>
         <a href="#contact">Confidentialité</a>
@@ -613,47 +614,8 @@
   </div>
 </div>
 
-<script>
-  const menuToggle = document.getElementById('menuToggle');
-  const mobileMenu = document.getElementById('mobileMenu');
-  menuToggle.addEventListener('click', () => {
-    const isOpen = mobileMenu.classList.toggle('open');
-    menuToggle.setAttribute('aria-expanded', String(isOpen));
-  });
-  mobileMenu.querySelectorAll('a, button').forEach((link) => {
-    link.addEventListener('click', () => {
-      mobileMenu.classList.remove('open');
-      menuToggle.setAttribute('aria-expanded', 'false');
-    });
-  });
-
-  const inscriptionModal = document.getElementById('inscriptionModal');
-  document.querySelectorAll('.js-open-inscription').forEach((btn) => {
-    btn.addEventListener('click', () => {
-      inscriptionModal.classList.add('open');
-    });
-  });
-  document.getElementById('modalCloseBtn').addEventListener('click', () => {
-    inscriptionModal.classList.remove('open');
-  });
-  inscriptionModal.addEventListener('click', (e) => {
-    if (e.target.id === 'inscriptionModal') inscriptionModal.classList.remove('open');
-  });
-
-  document.getElementById('inscriptionForm').addEventListener('submit', (e) => {
-    e.preventDefault();
-    const elevePrenom = document.getElementById('elevePrenom').value.trim();
-    const eleveNom = document.getElementById('eleveNom').value.trim();
-    const eleveNiveau = document.getElementById('eleveNiveau').value;
-    const parentTel = document.getElementById('parentTel').value.trim();
-    document.getElementById('inscriptionForm').style.display = 'none';
-    document.querySelector('.modal-sub').style.display = 'none';
-    document.getElementById('inscriptionSuccessText').textContent =
-      'Merci ! Nous avons bien reçu la demande d\'inscription de ' + elevePrenom + ' ' + eleveNom +
-      ' en ' + eleveNiveau + '. Notre équipe vous recontactera au ' + parentTel + ' sous 48h.';
-    document.getElementById('inscriptionSuccess').style.display = 'block';
-  });
-</script>
+<script type="module" src="/src/pages/landing.js"></script>
 
 </body>
 </html>
+
